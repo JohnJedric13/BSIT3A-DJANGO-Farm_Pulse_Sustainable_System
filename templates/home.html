@@ -171,6 +171,7 @@
                 <th>Variety</th>
                 <th>Location</th>
                 <th>Status</th>
+                <th>Expected Harvest</th>
                 <th>Observation</th>
                 <th class="w-1 text-center">Action</th>
               </tr>
@@ -179,9 +180,18 @@
               {% for crop in recent_crops %}
               <tr>
                 <td>
-                  <a href="{% url 'crops:crop_detail' crop.id %}" class="fw-bold text-reset text-decoration-none">
-                    {{ crop.name }}
-                  </a>
+                  <div class="d-flex align-items-center">
+                    {% if crop.display_image %}
+                    <img src="{{ crop.display_image }}" class="avatar avatar-sm rounded me-2 border" alt="{{ crop.name }}" style="object-fit: cover;">
+                    {% else %}
+                    <span class="avatar avatar-sm rounded me-2 bg-green-lt text-green">
+                      <i class="fas fa-seedling"></i>
+                    </span>
+                    {% endif %}
+                    <a href="{% url 'crops:crop_detail' crop.id %}" class="fw-bold text-reset text-decoration-none">
+                      {{ crop.name }}
+                    </a>
+                  </div>
                 </td>
                 <td><span class="badge bg-blue-lt">{{ crop.crop_type }}</span></td>
                 <td class="text-muted small"><i class="fas fa-map-marker-alt text-secondary me-1"></i>{{ crop.location }}</td>
@@ -192,6 +202,18 @@
                   <span class="badge bg-warning-lt text-warning"><i class="fas fa-triangle-exclamation me-1"></i>Warning</span>
                   {% else %}
                   <span class="badge bg-danger-lt text-danger"><i class="fas fa-circle-exclamation me-1"></i>Unhealthy</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if crop.expected_harvest_date %}
+                    <span class="small text-dark fw-medium">{{ crop.expected_harvest_date|date:"M d, Y" }}</span>
+                    {% if crop.harvest_badge %}
+                    <span class="badge {{ crop.harvest_badge.class }} ms-1" style="font-size: 0.75rem;">
+                      {{ crop.harvest_badge.label }}
+                    </span>
+                    {% endif %}
+                  {% else %}
+                    <span class="text-muted small">—</span>
                   {% endif %}
                 </td>
                 <td class="text-muted small" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -205,7 +227,7 @@
               </tr>
               {% empty %}
               <tr>
-                <td colspan="6" class="text-center py-4 text-muted">
+                <td colspan="7" class="text-center py-4 text-muted">
                   <i class="fas fa-seedling fa-2x mb-2 d-block text-muted"></i>
                   No crops registered yet.
                   <div class="mt-2">
@@ -228,21 +250,17 @@
         <!-- Farm Pulse Activity Counter Card -->
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title text-muted small text-uppercase mb-3">Farm Log</h4>
-            <div class="row text-center g-2">
-              <div class="col-6">
-                <div class="p-3 bg-light rounded">
-                  <div class="text-muted small mb-1"><i class="fas fa-clipboard-list text-primary me-1"></i>Activity Logs</div>
-                  <div class="h2 mb-0 font-weight-bold text-primary">{{ total_logs }}</div>
-                </div>
-              </div>
-              <!-- <div class="col-6">
-                <div class="p-3 bg-light rounded">
-                  <div class="text-muted small mb-1"><i class="fas fa-brain text-success me-1"></i>AI Reports</div>
-                  <div class="h2 mb-0 font-weight-bold text-success">{{ total_diagnoses }}</div>
-                </div>
-              </div> -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="card-title text-muted small text-uppercase mb-0">Daily Activities</h4>
+              <span class="badge bg-primary-lt">{{ total_logs }} Total</span>
             </div>
+            <div class="p-3 bg-light rounded text-center mb-3">
+              <div class="text-muted small mb-1"><i class="fas fa-clipboard-list text-primary me-1"></i>Logged Daily Tasks</div>
+              <div class="h2 mb-0 font-weight-bold text-primary">{{ total_logs }}</div>
+            </div>
+            <a href="{% url 'crops:activity_logs' %}" class="btn btn-primary btn-sm w-100">
+              <i class="fas fa-clipboard-list me-1"></i> Open Daily Activity Logger
+            </a>
           </div>
         </div>
 

@@ -20,7 +20,74 @@ class Crop(models.Model):
     location = models.CharField(max_length=150)
     status = models.CharField(max_length=50, default='Healthy', choices=STATUS_CHOICES)
     last_observation = models.TextField(blank=True, null=True)
+    planting_date = models.DateField(blank=True, null=True)
+    expected_harvest_date = models.DateField(blank=True, null=True)
+    estimated_yield = models.CharField(max_length=100, blank=True, null=True)
+    image = models.ImageField(upload_to='crops/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def display_image(self):
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return None
+
+    @property
+    def days_until_harvest(self):
+        if not self.expected_harvest_date:
+            return None
+        import datetime
+        return (self.expected_harvest_date - datetime.date.today()).days
+
+    @property
+    def growth_progress(self):
+        if not self.planting_date or not self.expected_harvest_date:
+            return None
+        import datetime
+        total_days = (self.expected_harvest_date - self.planting_date).days
+        if total_days <= 0:
+            return 100
+        elapsed = (datetime.date.today() - self.planting_date).days
+        if elapsed <= 0:
+            return 0
+        return min(100, max(0, round((elapsed / total_days) * 100)))
+
+    @property
+    def harvest_badge(self):
+        days = self.days_until_harvest
+        if days is None:
+            return None
+        if days < 0:
+            return {
+                'label': f'Overdue by {-days}d',
+                'class': 'bg-danger-lt text-danger',
+                'icon': 'fa-triangle-exclamation',
+                'status': 'Overdue'
+            }
+        elif days == 0:
+            return {
+                'label': 'Ready to harvest today!',
+                'class': 'bg-success text-white',
+                'icon': 'fa-circle-check',
+                'status': 'Ready'
+            }
+        elif days <= 7:
+            return {
+                'label': f'{days} days left',
+                'class': 'bg-warning-lt text-warning',
+                'icon': 'fa-clock',
+                'status': 'Approaching'
+            }
+        else:
+            return {
+                'label': f'In {days} days',
+                'class': 'bg-blue-lt text-primary',
+                'icon': 'fa-calendar',
+                'status': 'Growing'
+            }
 
     class Meta:
         db_table = 'crops'

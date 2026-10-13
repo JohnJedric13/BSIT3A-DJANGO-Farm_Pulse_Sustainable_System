@@ -1,0 +1,443 @@
+{% extends "theme/base.html" %}
+{% block content %}
+<div class="container-xl">
+  <!-- Page Header -->
+  <div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Farm Operations & Field Records</div>
+        <h2 class="page-title d-flex align-items-center gap-2">
+          <i class="fas fa-clipboard-list text-primary"></i> Daily Activity Logger
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activityLogModal">
+          <i class="fas fa-plus me-1"></i> Log Daily Activity
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-primary text-white avatar">
+                <i class="fas fa-clipboard-check"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Total Activities</div>
+              <div class="text-muted">{{ total_logs }} recorded</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-azure text-white avatar">
+                <i class="fas fa-faucet-drip"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Watering Logs</div>
+              <div class="text-muted">{{ watering_count }} sessions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-teal text-white avatar">
+                <i class="fas fa-vial"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Fertilizing</div>
+              <div class="text-muted">{{ fertilizing_count }} applications</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-purple text-white avatar">
+                <i class="fas fa-magnifying-glass"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Field Inspections</div>
+              <div class="text-muted">{{ inspection_count }} checks</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <form method="GET" class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search tasks, symptoms, notes...">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select name="type" class="form-select" onchange="this.form.submit()">
+            <option value="">All Activity Types</option>
+            <option value="Watering" {% if activity_type == 'Watering' %}selected{% endif %}>Watering</option>
+            <option value="Fertilizing" {% if activity_type == 'Fertilizing' %}selected{% endif %}>Fertilizing</option>
+            <option value="Inspection" {% if activity_type == 'Inspection' %}selected{% endif %}>Field Inspection</option>
+            <option value="Pest Control" {% if activity_type == 'Pest Control' %}selected{% endif %}>Pest Control / Spraying</option>
+            <option value="Weeding" {% if activity_type == 'Weeding' %}selected{% endif %}>Weeding</option>
+            <option value="Pruning" {% if activity_type == 'Pruning' %}selected{% endif %}>Pruning / Trimming</option>
+            <option value="Harvesting" {% if activity_type == 'Harvesting' %}selected{% endif %}>Harvesting</option>
+            <option value="Soil Preparation" {% if activity_type == 'Soil Preparation' %}selected{% endif %}>Soil Preparation</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="crop" class="form-select" onchange="this.form.submit()">
+            <option value="">All Crops & Fields</option>
+            {% for c in crops %}
+            <option value="{{ c.id }}" {% if crop_filter == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }} ({{ c.crop_type }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input type="date" name="date" value="{{ date_filter }}" class="form-control" onchange="this.form.submit()">
+        </div>
+        <div class="col-md-1 text-end">
+          {% if query or activity_type or crop_filter or date_filter %}
+          <a href="{% url 'crops:activity_logs' %}" class="btn btn-ghost-secondary w-100" title="Reset Filters">
+            <i class="fas fa-rotate-left"></i>
+          </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="logPageAlert" class="alert alert-danger d-none" role="alert"></div>
+
+  <!-- Activity Logs Table Card -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h3 class="card-title mb-0">
+        <i class="fas fa-book-journal-whills text-primary me-2"></i> Activity Log History
+      </h3>
+      <span class="text-muted small">Showing {{ logs|length }} entries</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-vcenter table-hover card-table">
+        <thead>
+          <tr>
+            <th style="width: 140px;">Date</th>
+            <th>Crop / Field</th>
+            <th>Activity Type</th>
+            <th>Observed Condition</th>
+            <th>Symptom & Observation Notes</th>
+            <th class="w-1 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr id="log-row-{{ log.id }}">
+            <td>
+              <span class="fw-bold text-dark"><i class="far fa-calendar text-secondary me-1"></i>{{ log.log_date|date:"M d, Y" }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                {% if log.crop.display_image %}
+                <img src="{{ log.crop.display_image }}" class="avatar avatar-sm rounded me-2 border" alt="{{ log.crop.name }}" style="object-fit: cover;">
+                {% else %}
+                <span class="avatar avatar-sm rounded me-2 bg-green-lt text-green">
+                  <i class="fas fa-seedling"></i>
+                </span>
+                {% endif %}
+                <div>
+                  <a href="{% url 'crops:crop_detail' log.crop.id %}" class="fw-bold text-reset text-decoration-none">
+                    {{ log.crop.name }}
+                  </a>
+                  <span class="badge bg-blue-lt ms-1">{{ log.crop.crop_type }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              {% if "Water" in log.activity_type %}
+              <span class="badge bg-azure-lt text-azure"><i class="fas fa-faucet-drip me-1"></i>{{ log.activity_type }}</span>
+              {% elif "Fertiliz" in log.activity_type %}
+              <span class="badge bg-teal-lt text-teal"><i class="fas fa-vial me-1"></i>{{ log.activity_type }}</span>
+              {% elif "Inspect" in log.activity_type %}
+              <span class="badge bg-purple-lt text-purple"><i class="fas fa-magnifying-glass me-1"></i>{{ log.activity_type }}</span>
+              {% elif "Pest" in log.activity_type %}
+              <span class="badge bg-danger-lt text-danger"><i class="fas fa-bug me-1"></i>{{ log.activity_type }}</span>
+              {% elif "Harvest" in log.activity_type %}
+              <span class="badge bg-success-lt text-success"><i class="fas fa-wheat-awn me-1"></i>{{ log.activity_type }}</span>
+              {% else %}
+              <span class="badge bg-secondary-lt"><i class="fas fa-tasks me-1"></i>{{ log.activity_type }}</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if "Healthy" in log.observed_condition or "Good" in log.observed_condition or "Optimal" in log.observed_condition %}
+              <span class="badge bg-success-lt text-success"><i class="fas fa-circle-check me-1"></i>{{ log.observed_condition }}</span>
+              {% elif "Warning" in log.observed_condition or "Low" in log.observed_condition or "Dry" in log.observed_condition %}
+              <span class="badge bg-warning-lt text-warning"><i class="fas fa-triangle-exclamation me-1"></i>{{ log.observed_condition }}</span>
+              {% elif "Unhealthy" in log.observed_condition or "Sick" in log.observed_condition or "Disease" in log.observed_condition or "Pest" in log.observed_condition %}
+              <span class="badge bg-danger-lt text-danger"><i class="fas fa-circle-exclamation me-1"></i>{{ log.observed_condition }}</span>
+              {% else %}
+              <span class="badge bg-secondary-lt">{{ log.observed_condition }}</span>
+              {% endif %}
+            </td>
+            <td style="max-width: 320px;">
+              <span class="text-secondary">{{ log.notes }}</span>
+            </td>
+            <td class="text-center">
+              <button type="button" class="btn btn-ghost-danger btn-icon btn-sm delete-log-btn"
+                      data-id="{{ log.id }}" data-title="{{ log.activity_type }} - {{ log.crop.name }} ({{ log.log_date }})"
+                      title="Delete Log">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="fas fa-clipboard-list fa-3x mb-3 d-block text-muted"></i>
+              <h4>No Activity Logs Found</h4>
+              <p class="text-muted">Start tracking your daily tasks like watering, fertilizing, and crop inspections.</p>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activityLogModal">
+                <i class="fas fa-plus me-1"></i> Log First Daily Activity
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if logs.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex align-items-center">
+      <p class="m-0 text-muted">
+        Showing <span>{{ logs.start_index }}</span> to <span>{{ logs.end_index }}</span> of <span>{{ logs.paginator.count }}</span> entries
+      </p>
+      <ul class="pagination m-0 ms-auto">
+        {% if logs.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ logs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if activity_type %}&type={{ activity_type }}{% endif %}{% if crop_filter %}&crop={{ crop_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">
+            <i class="fas fa-chevron-left me-1"></i> Prev
+          </a>
+        </li>
+        {% endif %}
+        {% for num in logs.paginator.page_range %}
+        <li class="page-item {% if logs.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if activity_type %}&type={{ activity_type }}{% endif %}{% if crop_filter %}&crop={{ crop_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if logs.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ logs.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if activity_type %}&type={{ activity_type }}{% endif %}{% if crop_filter %}&crop={{ crop_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">
+            Next <i class="fas fa-chevron-right ms-1"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal: Daily Activity Logger -->
+<div class="modal modal-blur fade" id="activityLogModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-clipboard-check text-primary me-2"></i>Daily Activity Logger</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="activityLogForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div id="activityFormError" class="alert alert-danger d-none"></div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label required">Date of Activity</label>
+              <input type="date" name="log_date" id="act_log_date" value="{{ today }}" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Select Crop / Field</label>
+              <select name="crop_id" id="act_crop_id" class="form-select" required>
+                <option value="">-- Choose Crop --</option>
+                {% for c in crops %}
+                <option value="{{ c.id }}">{{ c.name }} ({{ c.crop_type }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label required">Activity Type</label>
+              <select name="activity_type" id="act_activity_type" class="form-select" required>
+                <option value="">-- Choose Task --</option>
+                <option value="Watering">Watering / Irrigation</option>
+                <option value="Fertilizing">Fertilizing / Nutrients</option>
+                <option value="Inspection">Field Inspection & Health Check</option>
+                <option value="Pest Control">Pest & Insect Control</option>
+                <option value="Weeding">Weeding / Clearing</option>
+                <option value="Pruning">Pruning / Trimming</option>
+                <option value="Harvesting">Harvesting</option>
+                <option value="Soil Preparation">Soil Preparation / Tilling</option>
+                <option value="Other">Other Farm Task</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label required">Observed Condition</label>
+              <select name="observed_condition" id="act_observed_condition" class="form-select" required>
+                <option value="Healthy / Optimal">Healthy / Optimal Growth</option>
+                <option value="Normal / Good">Normal / Good</option>
+                <option value="Soil Moisture Low">Soil Moisture Low / Needs Water</option>
+                <option value="Minor Symptoms Observed">Minor Symptoms / Leaf Discoloration</option>
+                <option value="Pest Infestation Detected">Pest Infestation Detected</option>
+                <option value="Unhealthy / Disease Warning">Unhealthy / Disease Warning</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label required">Symptom / Observation Notes</label>
+              <textarea name="notes" id="act_notes" class="form-control" rows="3"
+                        placeholder="Log observations: e.g. Drip watered for 30m; Applied organic NPK fertilizer; Checked lower leaves for yellow spots or fungal spores..." required></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Update Crop Health Status (Optional)</label>
+              <select name="update_crop_status" id="act_update_crop_status" class="form-select">
+                <option value="">Keep current crop status</option>
+                <option value="Healthy">Mark Crop as Healthy</option>
+                <option value="Minor Warning">Mark Crop as Minor Warning</option>
+                <option value="Unhealthy">Mark Crop as Unhealthy</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveActivityBtn">
+            <i class="fas fa-save me-1"></i> Save Activity Log
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal modal-blur fade" id="deleteLogModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Log</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteLogName"></strong>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteLogBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const form = document.getElementById('activityLogForm');
+  const formError = document.getElementById('activityFormError');
+  const alertBox = document.getElementById('logPageAlert');
+  const saveBtn = document.getElementById('saveActivityBtn');
+
+  const deleteModalEl = document.getElementById('deleteLogModal');
+  const deleteModal = new bootstrap.Modal(deleteModalEl);
+  const deleteLogName = document.getElementById('deleteLogName');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteLogBtn');
+  let currentDeleteLogId = null;
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    formError.classList.add('d-none');
+    saveBtn.disabled = true;
+
+    const formData = new FormData(form);
+
+    fetch('{% url "crops:activity_log_save_ajax" %}', {
+      method: 'POST',
+      headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      saveBtn.disabled = false;
+      if (data.error) {
+        formError.textContent = data.error;
+        formError.classList.remove('d-none');
+        return;
+      }
+      window.location.reload();
+    })
+    .catch(() => {
+      saveBtn.disabled = false;
+      formError.textContent = 'An error occurred while saving the activity log.';
+      formError.classList.remove('d-none');
+    });
+  });
+
+  document.querySelectorAll('.delete-log-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentDeleteLogId = this.getAttribute('data-id');
+      deleteLogName.textContent = this.getAttribute('data-title');
+      deleteModal.show();
+    });
+  });
+
+  confirmDeleteBtn.addEventListener('click', function() {
+    if (!currentDeleteLogId) return;
+
+    fetch('/crops/logs/delete/' + currentDeleteLogId + '/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'deleted') {
+        window.location.reload();
+      }
+    })
+    .catch(() => {
+      alertBox.textContent = 'Failed to delete activity log.';
+      alertBox.classList.remove('d-none');
+    });
+  });
+})();
+</script>
+{% endblock %}
+

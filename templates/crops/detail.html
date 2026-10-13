@@ -11,9 +11,18 @@
   <!-- Page Header -->
   <div class="page-header d-print-none mb-3">
     <div class="row align-items-center">
+      <div class="col-auto">
+        {% if crop.display_image %}
+        <img src="{{ crop.display_image }}" class="rounded shadow-sm border" alt="{{ crop.name }}" style="width: 72px; height: 72px; object-fit: cover;">
+        {% else %}
+        <span class="avatar avatar-xl rounded bg-green-lt text-green shadow-sm">
+          <i class="fas fa-seedling fa-2x"></i>
+        </span>
+        {% endif %}
+      </div>
       <div class="col">
-        <div class="page-pretitle">Crop Profile & History</div>
-        <h2 class="page-title d-flex align-items-center gap-2">
+        <div class="page-pretitle">Crop Profile & Field History</div>
+        <h2 class="page-title d-flex align-items-center gap-2 mb-0">
           {{ crop.name }}
           {% if crop.status == 'Healthy' %}
           <span class="badge bg-success-lt text-success fs-6"><i class="fas fa-circle-check me-1"></i>Healthy</span>
@@ -23,6 +32,9 @@
           <span class="badge bg-danger-lt text-danger fs-6"><i class="fas fa-circle-exclamation me-1"></i>Unhealthy</span>
           {% endif %}
         </h2>
+        <div class="text-muted small mt-1">
+          <i class="fas fa-map-marker-alt text-secondary me-1"></i>{{ crop.location }} • <span class="badge bg-blue-lt">{{ crop.crop_type }}</span>
+        </div>
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
@@ -41,30 +53,95 @@
 
   <!-- Crop Info Summary Card -->
   <div class="row row-cards mb-4">
-    <div class="col-md-4">
+    <div class="col-sm-6 col-lg-3">
       <div class="card card-sm">
         <div class="card-body">
-          <div class="text-muted mb-1"><i class="fas fa-tag me-1"></i> Crop Variety / Type</div>
+          <div class="text-muted mb-1"><i class="fas fa-tag me-1 text-primary"></i> Variety / Type</div>
           <div class="h3 mb-0">{{ crop.crop_type }}</div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-6 col-lg-3">
       <div class="card card-sm">
         <div class="card-body">
-          <div class="text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> Location / Zone</div>
+          <div class="text-muted mb-1"><i class="fas fa-map-marker-alt me-1 text-danger"></i> Location / Zone</div>
           <div class="h3 mb-0">{{ crop.location }}</div>
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-sm-6 col-lg-3">
       <div class="card card-sm">
         <div class="card-body">
-          <div class="text-muted mb-1"><i class="fas fa-calendar-alt me-1"></i> Registered Date</div>
-          <div class="h3 mb-0">{{ crop.created_at|date:"M d, Y" }}</div>
+          <div class="text-muted mb-1"><i class="fas fa-seedling me-1 text-success"></i> Planting Date</div>
+          <div class="h3 mb-0">
+            {% if crop.planting_date %}
+              {{ crop.planting_date|date:"M d, Y" }}
+            {% else %}
+              <span class="text-muted fs-5">Not set</span>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="text-muted mb-1"><i class="fas fa-wheat-awn me-1 text-warning"></i> Expected Harvest</div>
+          <div class="h3 mb-0">
+            {% if crop.expected_harvest_date %}
+              {{ crop.expected_harvest_date|date:"M d, Y" }}
+              {% if crop.harvest_badge %}
+              <span class="badge {{ crop.harvest_badge.class }} fs-6 ms-1">
+                <i class="fas {{ crop.harvest_badge.icon }} me-1"></i>{{ crop.harvest_badge.label }}
+              </span>
+              {% endif %}
+            {% else %}
+              <span class="text-muted fs-5">Not scheduled</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Harvest & Growth Progress Banner -->
+    {% if crop.expected_harvest_date %}
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <div>
+              <span class="fw-bold text-dark"><i class="fas fa-chart-line text-primary me-2"></i>Crop Growth & Harvest Progress</span>
+              {% if crop.estimated_yield %}
+              <span class="badge bg-blue-lt ms-2"><i class="fas fa-weight-hanging me-1"></i>Expected Yield: {{ crop.estimated_yield }}</span>
+              {% endif %}
+            </div>
+            <div class="text-muted small">
+              {% if crop.days_until_harvest is not None %}
+                {% if crop.days_until_harvest > 0 %}
+                <strong>{{ crop.days_until_harvest }}</strong> days remaining until expected harvest
+                {% elif crop.days_until_harvest == 0 %}
+                <span class="text-success fw-bold">Target harvest date is TODAY!</span>
+                {% else %}
+                <span class="text-danger fw-bold">Past expected harvest date by {{ crop.days_until_harvest|stringformat:"d"|slice:"1:" }} days</span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          {% if crop.growth_progress is not None %}
+          <div class="progress progress-sm">
+            <div class="progress-bar bg-success" style="width: {{ crop.growth_progress }}%" role="progressbar" aria-valuenow="{{ crop.growth_progress }}" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+          <div class="d-flex justify-content-between text-muted small mt-1">
+            <span>Planted: {{ crop.planting_date|date:"M d, Y"|default:"Initial" }}</span>
+            <span><strong>{{ crop.growth_progress }}%</strong> matured</span>
+            <span>Expected Harvest: {{ crop.expected_harvest_date|date:"M d, Y" }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     {% if crop.last_observation %}
     <div class="col-12">
@@ -208,7 +285,18 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label required">Activity Type</label>
-              <input type="text" name="activity_type" class="form-control" placeholder="e.g. Field Inspection, Watering, Fertilizer" required>
+              <select name="activity_type" class="form-select" required>
+                <option value="">-- Choose Task --</option>
+                <option value="Watering">Watering / Irrigation</option>
+                <option value="Fertilizing">Fertilizing / Nutrients</option>
+                <option value="Inspection">Field Inspection & Health Check</option>
+                <option value="Pest Control">Pest & Insect Control</option>
+                <option value="Weeding">Weeding / Clearing</option>
+                <option value="Pruning">Pruning / Trimming</option>
+                <option value="Harvesting">Harvesting</option>
+                <option value="Soil Preparation">Soil Preparation / Tilling</option>
+                <option value="Other">Other Farm Task</option>
+              </select>
             </div>
             <div class="col-md-6">
               <label class="form-label required">Log Date</label>
@@ -216,11 +304,18 @@
             </div>
             <div class="col-12">
               <label class="form-label required">Observed Condition</label>
-              <input type="text" name="observed_condition" class="form-control" placeholder="e.g. Healthy, Unhealthy / Sick, Soil moisture low" required>
+              <select name="observed_condition" class="form-select" required>
+                <option value="Healthy / Optimal">Healthy / Optimal Growth</option>
+                <option value="Normal / Good">Normal / Good</option>
+                <option value="Soil Moisture Low">Soil Moisture Low / Needs Water</option>
+                <option value="Minor Symptoms Observed">Minor Symptoms / Leaf Discoloration</option>
+                <option value="Pest Infestation Detected">Pest Infestation Detected</option>
+                <option value="Unhealthy / Disease Warning">Unhealthy / Disease Warning</option>
+              </select>
             </div>
             <div class="col-12">
-              <label class="form-label required">Detailed Notes</label>
-              <textarea name="notes" class="form-control" rows="3" placeholder="Enter notes and observations..." required></textarea>
+              <label class="form-label required">Symptom / Observation Notes</label>
+              <textarea name="notes" class="form-control" rows="3" placeholder="Enter notes: e.g. Watered 45m; Leaf spots inspected on bottom leaves; Soil moist..." required></textarea>
             </div>
             <div class="col-12">
               <label class="form-label">Update Crop Health Status (Optional)</label>
