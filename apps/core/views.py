@@ -148,9 +148,9 @@ def home(request):
         logs_qs = FarmLog.objects.all()
         diagnoses_qs = AIDiagnosis.objects.all()
     else:
-        crops_qs = Crop.objects.filter(user=user)
-        logs_qs = FarmLog.objects.filter(crop__user=user)
-        diagnoses_qs = AIDiagnosis.objects.filter(crop__user=user)
+        crops_qs = Crop.objects.filter()
+        logs_qs = FarmLog.objects.filter()
+        diagnoses_qs = AIDiagnosis.objects.filter()
 
     total_crops = crops_qs.count()
     healthy_crops = crops_qs.filter(status='Healthy').count()
