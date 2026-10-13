@@ -10,6 +10,8 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
+from apps.crops.models import Crop, FarmLog, AIDiagnosis
+
 User = get_user_model()
 
 MAX_FAILED_ATTEMPTS = 5
@@ -140,7 +142,46 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def home(request):
-    return render(request, 'home.html')
+    user = request.user
+    if user.is_superuser:
+        crops_qs = Crop.objects.all()
+        logs_qs = FarmLog.objects.all()
+        diagnoses_qs = AIDiagnosis.objects.all()
+    else:
+        crops_qs = Crop.objects.filter(user=user)
+        logs_qs = FarmLog.objects.filter(crop__user=user)
+        diagnoses_qs = AIDiagnosis.objects.filter(crop__user=user)
+
+    total_crops = crops_qs.count()
+    healthy_crops = crops_qs.filter(status='Healthy').count()
+    warning_crops = crops_qs.filter(status='Minor Warning').count()
+    unhealthy_crops = crops_qs.filter(status='Unhealthy').count()
+    total_logs = logs_qs.count()
+    total_diagnoses = diagnoses_qs.count()
+
+    healthy_percent = round((healthy_crops / total_crops * 100)) if total_crops > 0 else 0
+    warning_percent = round((warning_crops / total_crops * 100)) if total_crops > 0 else 0
+    unhealthy_percent = round((unhealthy_crops / total_crops * 100)) if total_crops > 0 else 0
+
+    recent_crops = crops_qs.order_by('-created_at')[:5]
+    recent_logs = logs_qs.select_related('crop').order_by('-log_date', '-created_at')[:5]
+    recent_diagnoses = diagnoses_qs.select_related('crop', 'log').order_by('-created_at')[:4]
+
+    context = {
+        'total_crops': total_crops,
+        'healthy_crops': healthy_crops,
+        'warning_crops': warning_crops,
+        'unhealthy_crops': unhealthy_crops,
+        'healthy_percent': healthy_percent,
+        'warning_percent': warning_percent,
+        'unhealthy_percent': unhealthy_percent,
+        'total_logs': total_logs,
+        'total_diagnoses': total_diagnoses,
+        'recent_crops': recent_crops,
+        'recent_logs': recent_logs,
+        'recent_diagnoses': recent_diagnoses,
+    }
+    return render(request, 'home.html', context)
 
 
 @require_http_methods(['GET', 'POST'])

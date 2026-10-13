@@ -1,0 +1,391 @@
+{% extends "theme/base.html" %}
+{% block content %}
+<div class="container-xl">
+  <!-- Back navigation & Breadcrumb -->
+  <div class="mb-3">
+    <a href="{% url 'crops:crop_list' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-arrow-left me-1"></i> Back to All Crops
+    </a>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Crop Profile & History</div>
+        <h2 class="page-title d-flex align-items-center gap-2">
+          {{ crop.name }}
+          {% if crop.status == 'Healthy' %}
+          <span class="badge bg-success-lt text-success fs-6"><i class="fas fa-circle-check me-1"></i>Healthy</span>
+          {% elif crop.status == 'Minor Warning' %}
+          <span class="badge bg-warning-lt text-warning fs-6"><i class="fas fa-triangle-exclamation me-1"></i>Minor Warning</span>
+          {% else %}
+          <span class="badge bg-danger-lt text-danger fs-6"><i class="fas fa-circle-exclamation me-1"></i>Unhealthy</span>
+          {% endif %}
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#logModal">
+            <i class="fas fa-clipboard-check me-1"></i> Add Farm Log
+          </button>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#diagnosisModal">
+            <i class="fas fa-robot me-1"></i> Add AI Diagnosis
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detailAlert" class="alert alert-danger d-none" role="alert"></div>
+
+  <!-- Crop Info Summary Card -->
+  <div class="row row-cards mb-4">
+    <div class="col-md-4">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="text-muted mb-1"><i class="fas fa-tag me-1"></i> Crop Variety / Type</div>
+          <div class="h3 mb-0">{{ crop.crop_type }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> Location / Zone</div>
+          <div class="h3 mb-0">{{ crop.location }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="text-muted mb-1"><i class="fas fa-calendar-alt me-1"></i> Registered Date</div>
+          <div class="h3 mb-0">{{ crop.created_at|date:"M d, Y" }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if crop.last_observation %}
+    <div class="col-12">
+      <div class="card bg-light border-0">
+        <div class="card-body py-2">
+          <span class="fw-bold text-dark"><i class="fas fa-notes-medical text-primary me-2"></i>Latest Observation:</span>
+          <span class="text-muted ms-1">{{ crop.last_observation }}</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Two Column Layout: Farm Logs & AI Diagnoses -->
+  <div class="row g-4">
+    <!-- Section 1: Daily Farm Activity Logs -->
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="card-title mb-0">
+            <i class="fas fa-book-open text-primary me-2"></i> Activity & Field Logs
+          </h3>
+          <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#logModal">
+            <i class="fas fa-plus me-1"></i> New Log
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table">
+            <thead>
+              <tr>
+                <th>Date & Activity</th>
+                <th>Condition</th>
+                <th>Notes</th>
+                <th class="w-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+              <tr>
+                <td>
+                  <div class="fw-bold">{{ log.activity_type }}</div>
+                  <div class="text-muted small">{{ log.log_date|date:"M d, Y" }}</div>
+                </td>
+                <td>
+                  <span class="badge bg-secondary-lt">{{ log.observed_condition }}</span>
+                </td>
+                <td class="text-muted small" style="max-width: 200px;">
+                  {{ log.notes }}
+                </td>
+                <td>
+                  <button type="button" class="btn btn-ghost-danger btn-icon btn-sm delete-log-btn"
+                          data-id="{{ log.id }}" data-title="{{ log.activity_type }} ({{ log.log_date }})">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center py-4 text-muted">
+                  <i class="fas fa-clipboard fa-2x mb-2 d-block text-muted"></i>
+                  No farm logs recorded yet for this crop.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: AI Diagnoses & Reports -->
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="card-title mb-0">
+            <i class="fas fa-brain text-success me-2"></i> AI Diagnoses & Reports
+          </h3>
+          <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#diagnosisModal">
+            <i class="fas fa-plus me-1"></i> New Diagnosis
+          </button>
+        </div>
+
+        <div class="card-body">
+          {% for diag in diagnoses %}
+          <div class="card card-sm border mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h4 class="card-title text-primary mb-1">
+                    <i class="fas fa-virus text-warning me-1"></i> {{ diag.diagnosis_title }}
+                  </h4>
+                  <div class="text-muted small">
+                    Diagnosed on {{ diag.created_at|date:"M d, Y H:i" }}
+                    {% if diag.log %}
+                    • Linked Log: <em>{{ diag.log.activity_type }}</em>
+                    {% endif %}
+                  </div>
+                </div>
+                <button type="button" class="btn btn-ghost-danger btn-icon btn-sm delete-diagnosis-btn"
+                        data-id="{{ diag.id }}" data-title="{{ diag.diagnosis_title }}">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+
+              <div class="mb-2">
+                <strong class="text-muted small d-block">Symptoms Summary:</strong>
+                <p class="mb-1 text-secondary small">{{ diag.symptom_summary }}</p>
+              </div>
+
+              <div class="bg-success-lt p-2 rounded">
+                <strong class="text-success small d-block"><i class="fas fa-shield-alt me-1"></i>Treatment & Action Plan:</strong>
+                <p class="mb-0 text-dark small">{{ diag.treatment_plan }}</p>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-4 text-muted">
+            <i class="fas fa-robot fa-2x mb-2 d-block text-muted"></i>
+            No AI diagnoses generated yet for this crop.
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Farm Log -->
+<div class="modal modal-blur fade" id="logModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-clipboard-check text-primary me-2"></i>Record Farm Log</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="logForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div id="logFormError" class="alert alert-danger d-none"></div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label required">Activity Type</label>
+              <input type="text" name="activity_type" class="form-control" placeholder="e.g. Field Inspection, Watering, Fertilizer" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Log Date</label>
+              <input type="date" name="log_date" value="{{ today }}" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Observed Condition</label>
+              <input type="text" name="observed_condition" class="form-control" placeholder="e.g. Healthy, Unhealthy / Sick, Soil moisture low" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Detailed Notes</label>
+              <textarea name="notes" class="form-control" rows="3" placeholder="Enter notes and observations..." required></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Update Crop Health Status (Optional)</label>
+              <select name="update_crop_status" class="form-select">
+                <option value="">Keep current status ({{ crop.status }})</option>
+                <option value="Healthy">Healthy</option>
+                <option value="Minor Warning">Minor Warning</option>
+                <option value="Unhealthy">Unhealthy</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Activity Log</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add AI Diagnosis -->
+<div class="modal modal-blur fade" id="diagnosisModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-brain text-success me-2"></i>Add AI Diagnosis</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="diagnosisForm">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div id="diagnosisFormError" class="alert alert-danger d-none"></div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label required">Diagnosis Title / Disease Identified</label>
+              <input type="text" name="diagnosis_title" class="form-control" placeholder="e.g. Early Blight (Alternaria solani)" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Link Related Activity Log (Optional)</label>
+              <select name="log_id" class="form-select">
+                <option value="">-- No linked log --</option>
+                {% for log in logs %}
+                <option value="{{ log.id }}">{{ log.activity_type }} ({{ log.log_date }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Symptom Summary</label>
+              <textarea name="symptom_summary" class="form-control" rows="3" placeholder="e.g. Yellow concentric rings on lower leaves, brown spots..." required></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label required">Treatment Plan & Recommendations</label>
+              <textarea name="treatment_plan" class="form-control" rows="4" placeholder="e.g. Apply copper fungicide, remove infected foliage, maintain drip irrigation..." required></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Save AI Diagnosis</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  const cropId = "{{ crop.id }}";
+
+  // Handle Log Form Submission
+  const logForm = document.getElementById('logForm');
+  const logError = document.getElementById('logFormError');
+  logForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    logError.classList.add('d-none');
+    const formData = new FormData(logForm);
+
+    fetch('/crops/' + cropId + '/logs/add/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrfToken},
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        logError.textContent = data.error;
+        logError.classList.remove('d-none');
+        return;
+      }
+      window.location.reload();
+    })
+    .catch(() => {
+      logError.textContent = 'Error saving farm log.';
+      logError.classList.remove('d-none');
+    });
+  });
+
+  // Handle Diagnosis Form Submission
+  const diagForm = document.getElementById('diagnosisForm');
+  const diagError = document.getElementById('diagnosisFormError');
+  diagForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    diagError.classList.add('d-none');
+    const formData = new FormData(diagForm);
+
+    fetch('/crops/' + cropId + '/diagnosis/add/', {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrfToken},
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        diagError.textContent = data.error;
+        diagError.classList.remove('d-none');
+        return;
+      }
+      window.location.reload();
+    })
+    .catch(() => {
+      diagError.textContent = 'Error saving diagnosis.';
+      diagError.classList.remove('d-none');
+    });
+  });
+
+  // Handle Log Deletion
+  document.querySelectorAll('.delete-log-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const title = this.getAttribute('data-title');
+      if (confirm('Delete farm log: ' + title + '?')) {
+        fetch('/crops/logs/delete/' + id + '/', {
+          method: 'POST',
+          headers: {'X-CSRFToken': csrfToken}
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'deleted') window.location.reload();
+        });
+      }
+    });
+  });
+
+  // Handle Diagnosis Deletion
+  document.querySelectorAll('.delete-diagnosis-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      const title = this.getAttribute('data-title');
+      if (confirm('Delete AI diagnosis: ' + title + '?')) {
+        fetch('/crops/diagnosis/delete/' + id + '/', {
+          method: 'POST',
+          headers: {'X-CSRFToken': csrfToken}
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'deleted') window.location.reload();
+        });
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}
+
