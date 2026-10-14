@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 28, 2026 at 04:39 PM
+-- Generation Time: Oct 14, 2026 at 02:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,22 @@ SET time_zone = "+00:00";
 --
 -- Database: `bsitcrud`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ai_diagnoses`
+--
+
+CREATE TABLE `ai_diagnoses` (
+  `id` int(11) NOT NULL,
+  `crop_id` int(11) NOT NULL,
+  `log_id` int(11) DEFAULT NULL,
+  `symptom_summary` text NOT NULL,
+  `diagnosis_title` varchar(255) NOT NULL,
+  `treatment_plan` text NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -141,7 +157,19 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 (77, 'Can add info', 20, 'add_info'),
 (78, 'Can change info', 20, 'change_info'),
 (79, 'Can delete info', 20, 'delete_info'),
-(80, 'Can view info', 20, 'view_info');
+(80, 'Can view info', 20, 'view_info'),
+(81, 'Can add crop', 21, 'add_crop'),
+(82, 'Can change crop', 21, 'change_crop'),
+(83, 'Can delete crop', 21, 'delete_crop'),
+(84, 'Can view crop', 21, 'view_crop'),
+(85, 'Can add farm log', 22, 'add_farmlog'),
+(86, 'Can change farm log', 22, 'change_farmlog'),
+(87, 'Can delete farm log', 22, 'delete_farmlog'),
+(88, 'Can view farm log', 22, 'view_farmlog'),
+(89, 'Can add AI Diagnosis', 23, 'add_aidiagnosis'),
+(90, 'Can change AI Diagnosis', 23, 'change_aidiagnosis'),
+(91, 'Can delete AI Diagnosis', 23, 'delete_aidiagnosis'),
+(92, 'Can view AI Diagnosis', 23, 'view_aidiagnosis');
 
 -- --------------------------------------------------------
 
@@ -169,7 +197,8 @@ CREATE TABLE `auth_user` (
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
 (1, 'pbkdf2_sha256$720000$EcUWmJliC0ddFa1gTCmeBh$ZU8a1pV8OcMxx3+eTljRu20P0fOSNv1BumXEwFAS968=', '2026-09-28 14:38:39.705136', 1, 'glenn', 'Glenn', 'Azuelo', 'glennazuelo1@gmail.com', 1, 1, '2026-05-12 14:09:37.605739'),
-(2, 'pbkdf2_sha256$1200000$6tJ7297yjDHjAufSku1f6Q$/+XGBQy79azDzpUZ5QvzAQ7L3T608gS5zuB2/ATXeEc=', '2026-08-07 06:43:08.595063', 2, 'laravel', 'Laravel', 'Azuelo', 'glennazuelo12@gmail.com', 1, 1, '2026-06-25 10:30:12.000000');
+(2, 'pbkdf2_sha256$1200000$6tJ7297yjDHjAufSku1f6Q$/+XGBQy79azDzpUZ5QvzAQ7L3T608gS5zuB2/ATXeEc=', '2026-08-07 06:43:08.595063', 2, 'laravel', 'Laravel', 'Azuelo', 'glennazuelo12@gmail.com', 1, 1, '2026-06-25 10:30:12.000000'),
+(14, 'pbkdf2_sha256$720000$sYZ8PnawQJBJnGE3BKBilE$iP5ai9K4Yy+AgQX8VsrNXBPHCw+K/bLoRx6XwEdWV90=', '2026-10-13 14:02:50.456836', 0, 'wew', 'jstaff', 'ss', 'jrey2322@gmail.com', 0, 1, '2026-10-13 14:02:49.839050');
 
 -- --------------------------------------------------------
 
@@ -194,6 +223,37 @@ CREATE TABLE `auth_user_user_permissions` (
   `user_id` int(11) NOT NULL,
   `permission_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `crops`
+--
+
+CREATE TABLE `crops` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `crop_type` varchar(100) NOT NULL,
+  `location` varchar(150) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'Healthy',
+  `last_observation` text DEFAULT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `estimated_yield` varchar(100) DEFAULT NULL,
+  `expected_harvest_date` date DEFAULT NULL,
+  `planting_date` date DEFAULT NULL,
+  `image` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `crops`
+--
+
+INSERT INTO `crops` (`id`, `user_id`, `name`, `crop_type`, `location`, `status`, `last_observation`, `created_at`, `estimated_yield`, `expected_harvest_date`, `planting_date`, `image`) VALUES
+(1, 1, 'Tomato Field A', 'Roma Tomato', 'North Greenhouse', 'Unhealthy', 'Yellow concentric rings on lower foliage', '2026-10-13 05:52:51.000000', NULL, '2026-12-27', '2026-10-13', 'crops/tomato.jfif'),
+(2, 1, 'Corn Patch #1', 'Sweet Corn', 'East Field', 'Healthy', 'Good stalk growth, normal dark green color', '2026-10-13 05:52:51.000000', NULL, NULL, NULL, NULL),
+(3, 1, 'Rice Paddy B', 'Jasmine Rice', 'South Terraces', 'Minor Warning', 'Soil moisture slightly low, leaf tips browning', '2026-10-13 05:52:51.000000', NULL, NULL, NULL, NULL),
+(4, 14, 'Chili B', 'Sili Laboyo', 'West Greenhouse', 'Minor Warning', 'kkkk', '2026-10-13 14:20:55.456865', NULL, '2027-01-01', '2026-10-13', 'crops/sili.jfif');
 
 -- --------------------------------------------------------
 
@@ -240,6 +300,9 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 (17, 'courses', 'quiz'),
 (18, 'courses', 'quizquestion'),
 (14, 'courses', 'tblcourse'),
+(23, 'crops', 'aidiagnosis'),
+(21, 'crops', 'crop'),
+(22, 'crops', 'farmlog'),
 (20, 'info', 'info'),
 (13, 'journal', 'journalentry'),
 (8, 'likes', 'like'),
@@ -312,7 +375,10 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (42, 'students', '0004_tblstudents_user', '2026-08-07 06:30:49.635627'),
 (43, 'students', '0005_assign_student_ownership', '2026-08-07 06:30:49.642613'),
 (44, 'courses', '0009_delete_courseschedule', '2026-09-28 13:26:33.001214'),
-(45, 'info', '0001_initial', '2026-09-28 13:26:33.140759');
+(45, 'info', '0001_initial', '2026-09-28 13:26:33.140759'),
+(46, 'crops', '0001_initial', '2026-10-13 14:12:39.067633'),
+(47, 'crops', '0002_crop_estimated_yield_crop_expected_harvest_date_and_more', '2026-10-13 14:12:39.682044'),
+(48, 'crops', '0003_crop_image', '2026-10-13 14:38:39.022653');
 
 -- --------------------------------------------------------
 
@@ -360,9 +426,35 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('qfyw4hpgx2faw4m3q54byr2dco221lh3', '.eJxVjLEOwyAQQ_-FuUIlB6fQsXu_AR0clLQVSCGZqv57iZQhmWz52f4KR-uS3dri7CYWN6HE5Zh5Cu9YNsAvKs8qQy3LPHm5VeROm3xUjp_73j0dZGq5rwfwCGiVQkhJkafUvWVrjA6JkLUGijAAdgVv7GiBlWHGESGmK4nfH82sN3Q:1wrXAB:AegUMKakfH44vhSPP-OPpkxr-5Utbe-vfyhkdHlwGSc', '2026-08-19 08:39:47.444983'),
 ('rlgj6wxt7vwgwpdmxsoplcu7u859aaqy', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9krg:TFLTq3JN8ItkaSf2vAYGtU5vSxvv9S3cYQ3WIjvI1Ww', '2026-10-08 14:56:00.798741'),
 ('sme92pftea9j1i5x0ooscaxsudls8pql', '.eJxVjEEOgyAQAP-yZ0NABZRj730DWVioVMRG8dT0742JF68zk_lCxJQDWaw1LJ-6g-EN5NXPtqYlgClHzg1YPOpkjz1sNhEYEHBjDv0cyinojeW1Mr-WuiXHzoRddmfPlUJ-XO1tMOE-gQHtRNtipwePSH1LA1dOqLHzHKMIPJJ3WouoSMropETfOR5FrzxFNw5Kwe8PwOZFsA:1x4Cnm:qW9dSnrBvvKkphbZJIARH57cqn7b3aQ6UgM5CGbiokM', '2026-09-23 07:33:02.239875'),
+('sq5ffhcxip63t1kb94ptieaokntzgscm', '.eJxVjMsOgjAQAP9lz6YptQ_K0bvf0Cy7W0ERDC0n478bEi5cZybzhYzjJJywVnl_aoHOXiDhVoe0FVnTyNBBY-EEe6SXzLvhJ86PRdEy13Xs1Z6owxZ1X1im29GeBgOWATpw0VpNzgtdG8bgTZYQxbL2mUnE-Da312h8dJocOqO1kagdM-kg0Qb4_QEUPD7O:1xGd5e:8eaXVkNIraxOgQP1PJeHGciBNRuvaAiUpkJJQXdvrGY', '2026-10-27 14:02:50.501499'),
 ('swjje3v5mk3bbc0r4cr43oai4zyziuid', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9krV:01Og5u64VzLqlYcDp21s5RRNDqfQZGXPaCbN3Nyf7jM', '2026-10-08 14:55:49.449985'),
 ('ttt8vv4blhjd3sigrt8nu0k6dp87imxc', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9lOP:KuicCgkiYKc3-iWZ9IP4Oe9IhKnGSlrUaKod_tSYt48', '2026-10-08 15:29:49.345566'),
 ('z87ydqtr3q6d5eplfza2bzcl33nhfjdw', '.eJxVjMEKwyAQRP_Fc5Ga1SX22Hu_QVZXa9qiEJNT6b83Qg7JaYZ5j_kKR-uS3dri7CYWNzGIy3HzFN6xdMAvKs8qQy3LPHnZFbnTJh-V4-e-u6eDTC33W_AIaJVCSEmRp7R1y9YYHRIhaw0UYQDcEryxowVWhhlHhJiuJH5_zkU3dQ:1wsEHC:jgqzFKzskPhOyH8t9tDWOMpQPpL28E7zJvCfUA3YzNo', '2026-08-21 06:41:54.400657');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `farm_logs`
+--
+
+CREATE TABLE `farm_logs` (
+  `id` int(11) NOT NULL,
+  `crop_id` int(11) NOT NULL,
+  `activity_type` varchar(100) NOT NULL,
+  `observed_condition` varchar(50) NOT NULL,
+  `notes` text NOT NULL,
+  `log_date` date NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `farm_logs`
+--
+
+INSERT INTO `farm_logs` (`id`, `crop_id`, `activity_type`, `observed_condition`, `notes`, `log_date`, `created_at`) VALUES
+(1, 1, 'Field Inspection', 'Unhealthy / Sick', 'Noticed yellow concentric spots with brown centers on bottom leaves. Possible fungal infection.', '2026-10-13', '2026-10-13 05:52:52.000000'),
+(2, 2, 'Watering / Irrigation', 'Healthy', 'Drip irrigation ran for 45 mins. Soil moisture optimal.', '2026-10-13', '2026-10-13 05:52:52.000000'),
+(3, 4, 'Watering', 'Pest Infestation Detected', 'kkkk', '2026-10-13', '2026-10-13 14:33:15.095808');
 
 -- --------------------------------------------------------
 
@@ -391,6 +483,14 @@ INSERT INTO `tblinfo` (`id`, `name`, `age`, `address`, `email`, `created_at`, `u
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `ai_diagnoses`
+--
+ALTER TABLE `ai_diagnoses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ai_diagnoses_crop_id_fk_crops_id` (`crop_id`),
+  ADD KEY `ai_diagnoses_log_id_fk_farm_logs_id` (`log_id`);
 
 --
 -- Indexes for table `auth_group`
@@ -438,6 +538,13 @@ ALTER TABLE `auth_user_user_permissions`
   ADD KEY `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` (`permission_id`);
 
 --
+-- Indexes for table `crops`
+--
+ALTER TABLE `crops`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `crops_user_id_fk_auth_user_id` (`user_id`);
+
+--
 -- Indexes for table `django_admin_log`
 --
 ALTER TABLE `django_admin_log`
@@ -466,6 +573,13 @@ ALTER TABLE `django_session`
   ADD KEY `django_session_expire_date_a5c62663` (`expire_date`);
 
 --
+-- Indexes for table `farm_logs`
+--
+ALTER TABLE `farm_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `farm_logs_crop_id_fk_crops_id` (`crop_id`);
+
+--
 -- Indexes for table `tblinfo`
 --
 ALTER TABLE `tblinfo`
@@ -475,6 +589,12 @@ ALTER TABLE `tblinfo`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `ai_diagnoses`
+--
+ALTER TABLE `ai_diagnoses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `auth_group`
@@ -492,13 +612,13 @@ ALTER TABLE `auth_group_permissions`
 -- AUTO_INCREMENT for table `auth_permission`
 --
 ALTER TABLE `auth_permission`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT for table `auth_user`
 --
 ALTER TABLE `auth_user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `auth_user_groups`
@@ -513,6 +633,12 @@ ALTER TABLE `auth_user_user_permissions`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `crops`
+--
+ALTER TABLE `crops`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `django_admin_log`
 --
 ALTER TABLE `django_admin_log`
@@ -522,13 +648,19 @@ ALTER TABLE `django_admin_log`
 -- AUTO_INCREMENT for table `django_content_type`
 --
 ALTER TABLE `django_content_type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+
+--
+-- AUTO_INCREMENT for table `farm_logs`
+--
+ALTER TABLE `farm_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tblinfo`
@@ -539,6 +671,13 @@ ALTER TABLE `tblinfo`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `ai_diagnoses`
+--
+ALTER TABLE `ai_diagnoses`
+  ADD CONSTRAINT `ai_diagnoses_crop_id_fk_crops_id` FOREIGN KEY (`crop_id`) REFERENCES `crops` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `ai_diagnoses_log_id_fk_farm_logs_id` FOREIGN KEY (`log_id`) REFERENCES `farm_logs` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `auth_group_permissions`
@@ -568,11 +707,23 @@ ALTER TABLE `auth_user_user_permissions`
   ADD CONSTRAINT `auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
 
 --
+-- Constraints for table `crops`
+--
+ALTER TABLE `crops`
+  ADD CONSTRAINT `crops_user_id_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `django_admin_log`
 --
 ALTER TABLE `django_admin_log`
   ADD CONSTRAINT `django_admin_log_content_type_id_c4bce8eb_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`),
   ADD CONSTRAINT `django_admin_log_user_id_c564eba6_fk_auth_user_id` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`);
+
+--
+-- Constraints for table `farm_logs`
+--
+ALTER TABLE `farm_logs`
+  ADD CONSTRAINT `farm_logs_crop_id_fk_crops_id` FOREIGN KEY (`crop_id`) REFERENCES `crops` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tblinfo`
