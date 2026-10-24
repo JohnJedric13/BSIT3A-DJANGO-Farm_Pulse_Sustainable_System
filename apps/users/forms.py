@@ -17,15 +17,16 @@ class UserForm(forms.ModelForm):
             'email',
             'password',
             'is_staff',
-            'is_active'
+            'is_active',
+            'is_superuser',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Force all fields required except password
-        for field in self.fields:
-            if field != 'password':
+        # Force standard text fields required
+        for field in ['username', 'first_name', 'last_name', 'email']:
+            if field in self.fields:
                 self.fields[field].required = True
 
         # Password required only when creating
@@ -36,10 +37,11 @@ class UserForm(forms.ModelForm):
         user = super().save(commit=False)
 
         password = self.cleaned_data.get('password')
-
-        # Only change password if user entered one
         if password:
             user.set_password(password)
+
+        if user.is_superuser:
+            user.is_staff = True
 
         if commit:
             user.save()
