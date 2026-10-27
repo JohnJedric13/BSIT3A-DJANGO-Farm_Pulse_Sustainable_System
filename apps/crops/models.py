@@ -74,7 +74,7 @@ class Crop(models.Model):
                 'icon': 'fa-circle-check',
                 'status': 'Ready'
             }
-        elif days <= 7:
+        elif days <= 14:
             return {
                 'label': f'{days} days left',
                 'class': 'bg-warning-lt text-warning',
