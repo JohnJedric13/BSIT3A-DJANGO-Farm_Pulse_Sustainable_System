@@ -21,7 +21,7 @@
         {% endif %}
       </div>
       <div class="col">
-        <div class="page-pretitle">Crop Profile & Field History</div>
+        <div class="page-pretitle">Crop Profile &amp; Field History</div>
         <h2 class="page-title d-flex align-items-center gap-2 mb-0">
           {{ crop.name }}
           {% if crop.status == 'Healthy' %}
@@ -41,8 +41,8 @@
           <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#logModal">
             <i class="fas fa-clipboard-check me-1"></i> Add Farm Log
           </button>
-          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#diagnosisModal">
-            <i class="fas fa-robot me-1"></i> Add AI Diagnosis
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aiDiagnosisModal">
+            🤖 Add AI Diagnosis
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@
         <div class="card-body py-3">
           <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
             <div>
-              <span class="fw-bold text-dark"><i class="fas fa-chart-line text-primary me-2"></i>Crop Growth & Harvest Progress</span>
+              <span class="fw-bold text-dark"><i class="fas fa-chart-line text-primary me-2"></i>Crop Growth &amp; Harvest Progress</span>
               {% if crop.estimated_yield %}
               <span class="badge bg-blue-lt ms-2"><i class="fas fa-weight-hanging me-1"></i>Expected Yield: {{ crop.estimated_yield }}</span>
               {% endif %}
@@ -162,7 +162,7 @@
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="card-title mb-0">
-            <i class="fas fa-book-open text-primary me-2"></i> Activity & Field Logs
+            <i class="fas fa-book-open text-primary me-2"></i> Activity &amp; Field Logs
           </h3>
           <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#logModal">
             <i class="fas fa-plus me-1"></i> New Log
@@ -173,7 +173,7 @@
           <table class="table table-vcenter card-table">
             <thead>
               <tr>
-                <th>Date & Activity</th>
+                <th>Date &amp; Activity</th>
                 <th>Condition</th>
                 <th>Notes</th>
                 <th class="w-1"></th>
@@ -218,16 +218,16 @@
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h3 class="card-title mb-0">
-            <i class="fas fa-brain text-success me-2"></i> AI Diagnoses & Reports
+            <i class="fas fa-brain text-success me-2"></i> AI Diagnoses &amp; Reports
           </h3>
-          <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#diagnosisModal">
+          <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#aiDiagnosisModal">
             <i class="fas fa-plus me-1"></i> New Diagnosis
           </button>
         </div>
 
-        <div class="card-body">
+        <div class="card-body" id="diagnosesContainer">
           {% for diag in diagnoses %}
-          <div class="card card-sm border mb-3">
+          <div class="card card-sm border mb-3" id="diag-card-{{ diag.id }}">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
@@ -249,17 +249,19 @@
 
               <div class="mb-2">
                 <strong class="text-muted small d-block">Symptoms Summary:</strong>
-                <p class="mb-1 text-secondary small">{{ diag.symptom_summary }}</p>
+                <p class="mb-1 small" style="color: var(--tblr-body-color); opacity: 0.85;">{{ diag.symptom_summary }}</p>
               </div>
 
-              <div class="bg-success-lt p-2 rounded">
-                <strong class="text-success small d-block"><i class="fas fa-shield-alt me-1"></i>Treatment & Action Plan:</strong>
-                <p class="mb-0 text-dark small">{{ diag.treatment_plan }}</p>
+              <div class="p-3 rounded border" style="background: rgba(46, 202, 139, 0.08); border-color: rgba(46, 202, 139, 0.25) !important;">
+                <strong class="text-success small d-block mb-1">
+                  <i class="fas fa-shield-alt me-1"></i>Treatment &amp; Action Plan:
+                </strong>
+                <div class="small" style="color: var(--tblr-body-color); line-height: 1.6; white-space: pre-wrap;">{{ diag.treatment_plan }}</div>
               </div>
             </div>
           </div>
           {% empty %}
-          <div class="text-center py-4 text-muted">
+          <div class="text-center py-4 text-muted" id="noDiagnosesMsg">
             <i class="fas fa-robot fa-2x mb-2 d-block text-muted"></i>
             No AI diagnoses generated yet for this crop.
           </div>
@@ -289,8 +291,8 @@
                 <option value="">-- Choose Task --</option>
                 <option value="Watering">Watering / Irrigation</option>
                 <option value="Fertilizing">Fertilizing / Nutrients</option>
-                <option value="Inspection">Field Inspection & Health Check</option>
-                <option value="Pest Control">Pest & Insect Control</option>
+                <option value="Inspection">Field Inspection &amp; Health Check</option>
+                <option value="Pest Control">Pest &amp; Insect Control</option>
                 <option value="Weeding">Weeding / Clearing</option>
                 <option value="Pruning">Pruning / Trimming</option>
                 <option value="Harvesting">Harvesting</option>
@@ -337,50 +339,88 @@
   </div>
 </div>
 
-<!-- Modal: Add AI Diagnosis -->
-<div class="modal modal-blur fade" id="diagnosisModal" tabindex="-1">
-  <div class="modal-dialog modal-md modal-dialog-centered">
+<!-- =====================================================================
+     Modal: AI Crop Health Diagnosis (Gemini-powered)
+     ===================================================================== -->
+<div class="modal modal-blur fade" id="aiDiagnosisModal" tabindex="-1" aria-labelledby="aiDiagnosisModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-brain text-success me-2"></i>Add AI Diagnosis</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form id="diagnosisForm">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div id="diagnosisFormError" class="alert alert-danger d-none"></div>
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label required">Diagnosis Title / Disease Identified</label>
-              <input type="text" name="diagnosis_title" class="form-control" placeholder="e.g. Early Blight (Alternaria solani)" required>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Link Related Activity Log (Optional)</label>
-              <select name="log_id" class="form-select">
-                <option value="">-- No linked log --</option>
-                {% for log in logs %}
-                <option value="{{ log.id }}">{{ log.activity_type }} ({{ log.log_date }})</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label required">Symptom Summary</label>
-              <textarea name="symptom_summary" class="form-control" rows="3" placeholder="e.g. Yellow concentric rings on lower leaves, brown spots..." required></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label required">Treatment Plan & Recommendations</label>
-              <textarea name="treatment_plan" class="form-control" rows="4" placeholder="e.g. Apply copper fungicide, remove infected foliage, maintain drip irrigation..." required></textarea>
-            </div>
+
+      <!-- Header -->
+      <div class="modal-header" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+        <div>
+          <h5 class="modal-title text-white mb-0" id="aiDiagnosisModalLabel">
+            🤖 Gemini AI Crop Health Diagnosis
+          </h5>
+          <div class="text-white-50 small mt-1">
+            Specialized analysis for <strong class="text-white">{{ crop.crop_type }}</strong> — {{ crop.name }}
           </div>
         </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form id="aiDiagnosisForm">
+        {% csrf_token %}
+        <div class="modal-body">
+
+          <!-- Info banner -->
+          <div class="alert alert-info d-flex align-items-start gap-2 py-2 mb-3" role="alert">
+            <i class="fas fa-circle-info mt-1 flex-shrink-0"></i>
+            <div class="small">
+              The AI agronomist is <strong>locked to {{ crop.crop_type }}</strong>. Describe what you see on the leaves, soil, or plant structure and Gemini will produce a structured diagnosis.
+            </div>
+          </div>
+
+          <!-- Error alert -->
+          <div id="aiDiagError" class="alert alert-danger d-none"></div>
+
+          <!-- Crop context row -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted small fw-semibold">CROP NAME</label>
+              <input type="text" class="form-control bg-light" value="{{ crop.name }}" readonly>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small fw-semibold">CROP TYPE / VARIETY</label>
+              <input type="text" class="form-control bg-light" value="{{ crop.crop_type }}" readonly>
+            </div>
+          </div>
+
+          <!-- Symptom notes textarea -->
+          <div class="mb-3">
+            <label for="symptomNotesInput" class="form-label fw-semibold required">
+              <i class="fas fa-magnifying-glass text-warning me-1"></i>
+              Observed Leaf / Soil Symptoms
+            </label>
+            <textarea
+              id="symptomNotesInput"
+              name="symptom_notes"
+              class="form-control"
+              rows="4"
+              placeholder="Describe what you observe, e.g.: Yellow-brown spots with concentric rings on lower leaves, wilting at midday, white powdery coating on stems, soil waterlogged..."
+              required
+            >{% if logs %}{{ logs.0.notes }}{% endif %}</textarea>
+            <div class="form-text">
+              <i class="fas fa-lightbulb text-warning me-1"></i>
+              Pre-filled from your latest field log. Edit or clear to describe new symptoms.
+            </div>
+          </div>
+
+        </div><!-- /.modal-body -->
+
         <div class="modal-footer">
           <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">Save AI Diagnosis</button>
+          <button type="submit" id="aiDiagSubmitBtn" class="btn btn-primary">
+            <span id="aiDiagBtnIcon"><i class="fas fa-robot me-1"></i></span>
+            <span id="aiDiagBtnText">Generate AI Diagnosis</span>
+          </button>
         </div>
       </form>
-    </div>
+
+    </div><!-- /.modal-content -->
   </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -389,98 +429,177 @@
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   const cropId = "{{ crop.id }}";
 
-  // Handle Log Form Submission
-  const logForm = document.getElementById('logForm');
-  const logError = document.getElementById('logFormError');
+  // ─── Farm Log Form ──────────────────────────────────────────────────────────
+  const logForm    = document.getElementById('logForm');
+  const logError   = document.getElementById('logFormError');
   logForm.addEventListener('submit', function(e) {
     e.preventDefault();
     logError.classList.add('d-none');
-    const formData = new FormData(logForm);
-
     fetch('/crops/' + cropId + '/logs/add/', {
       method: 'POST',
       headers: {'X-CSRFToken': csrfToken},
-      body: formData
+      body: new FormData(logForm)
     })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
-      if (data.error) {
-        logError.textContent = data.error;
-        logError.classList.remove('d-none');
-        return;
-      }
+      if (data.error) { logError.textContent = data.error; logError.classList.remove('d-none'); return; }
       window.location.reload();
     })
-    .catch(() => {
-      logError.textContent = 'Error saving farm log.';
-      logError.classList.remove('d-none');
+    .catch(() => { logError.textContent = 'Error saving farm log.'; logError.classList.remove('d-none'); });
+  });
+
+  // ─── Delete Log ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('.delete-log-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.dataset.id, title = this.dataset.title;
+      if (confirm('Delete farm log: ' + title + '?')) {
+        fetch('/crops/logs/delete/' + id + '/', {
+          method: 'POST', headers: {'X-CSRFToken': csrfToken}
+        }).then(r => r.json()).then(d => { if (d.status === 'deleted') window.location.reload(); });
+      }
     });
   });
 
-  // Handle Diagnosis Form Submission
-  const diagForm = document.getElementById('diagnosisForm');
-  const diagError = document.getElementById('diagnosisFormError');
-  diagForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    diagError.classList.add('d-none');
-    const formData = new FormData(diagForm);
+  // ─── Delete Diagnosis ────────────────────────────────────────────────────────
+  document.querySelectorAll('.delete-diagnosis-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.dataset.id, title = this.dataset.title;
+      if (confirm('Delete AI diagnosis: ' + title + '?')) {
+        fetch('/crops/diagnosis/delete/' + id + '/', {
+          method: 'POST', headers: {'X-CSRFToken': csrfToken}
+        }).then(r => r.json()).then(d => { if (d.status === 'deleted') window.location.reload(); });
+      }
+    });
+  });
 
-    fetch('/crops/' + cropId + '/diagnosis/add/', {
+  // ─── AI Diagnosis Form (Gemini AJAX) ────────────────────────────────────────
+  const aiForm      = document.getElementById('aiDiagnosisForm');
+  const aiError     = document.getElementById('aiDiagError');
+  const submitBtn   = document.getElementById('aiDiagSubmitBtn');
+  const btnIcon     = document.getElementById('aiDiagBtnIcon');
+  const btnText     = document.getElementById('aiDiagBtnText');
+  const diagContainer = document.getElementById('diagnosesContainer');
+
+  function setLoading(on) {
+    submitBtn.disabled = on;
+    if (on) {
+      btnIcon.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+      btnText.textContent = 'Analysing…';
+    } else {
+      btnIcon.innerHTML = '<i class="fas fa-robot me-1"></i>';
+      btnText.textContent = 'Generate AI Diagnosis';
+    }
+  }
+
+  function escapeHtml(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function injectDiagCard(diag) {
+    // Remove empty-state placeholder if present
+    const noMsg = document.getElementById('noDiagnosesMsg');
+    if (noMsg) noMsg.remove();
+
+    const card = document.createElement('div');
+    card.className = 'card card-sm border mb-3';
+    card.id = 'diag-card-' + diag.id;
+    card.innerHTML = `
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h4 class="card-title text-primary mb-1">
+              <i class="fas fa-virus text-warning me-1"></i> ${escapeHtml(diag.title)}
+            </h4>
+            <div class="text-muted small">Diagnosed on ${escapeHtml(diag.created_at)}</div>
+          </div>
+          <button type="button"
+                  class="btn btn-ghost-danger btn-icon btn-sm delete-diagnosis-btn"
+                  data-id="${diag.id}"
+                  data-title="${escapeHtml(diag.title)}">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+
+        <div class="mb-2">
+          <strong class="text-muted small d-block">Symptoms Summary:</strong>
+          <p class="mb-1 small" style="color: var(--tblr-body-color); opacity: 0.85;">${escapeHtml(diag.symptom_summary)}</p>
+        </div>
+
+        <div class="p-3 rounded border" style="background: rgba(46, 202, 139, 0.08); border-color: rgba(46, 202, 139, 0.25) !important;">
+          <strong class="text-success small d-block mb-1">
+            <i class="fas fa-shield-alt me-1"></i>Treatment &amp; Action Plan:
+          </strong>
+          <div class="small" style="color: var(--tblr-body-color); line-height: 1.6; white-space: pre-wrap;">${escapeHtml(diag.treatment_plan)}</div>
+        </div>
+      </div>`;
+
+    // Prepend so newest appears at the top
+    diagContainer.insertBefore(card, diagContainer.firstChild);
+
+    // Wire delete button on the newly injected card
+    card.querySelector('.delete-diagnosis-btn').addEventListener('click', function() {
+      const id = this.dataset.id, title = this.dataset.title;
+      if (confirm('Delete AI diagnosis: ' + title + '?')) {
+        fetch('/crops/diagnosis/delete/' + id + '/', {
+          method: 'POST', headers: {'X-CSRFToken': csrfToken}
+        }).then(r => r.json()).then(d => { if (d.status === 'deleted') card.remove(); });
+      }
+    });
+
+    // Smooth scroll / highlight
+    card.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+    card.style.outline = '2px solid #2fb344';
+    setTimeout(() => { card.style.outline = ''; }, 2500);
+  }
+
+  aiForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    aiError.classList.add('d-none');
+
+    const symptomNotes = document.getElementById('symptomNotesInput').value.trim();
+    if (!symptomNotes) {
+      aiError.textContent = 'Please describe the observed symptoms before submitting.';
+      aiError.classList.remove('d-none');
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('symptom_notes', symptomNotes);
+
+    fetch('/crops/' + cropId + '/ai-diagnose/', {
       method: 'POST',
       headers: {'X-CSRFToken': csrfToken},
       body: formData
     })
-    .then(res => res.json())
+    .then(r => r.json())
     .then(data => {
+      setLoading(false);
       if (data.error) {
-        diagError.textContent = data.error;
-        diagError.classList.remove('d-none');
+        aiError.textContent = data.error;
+        aiError.classList.remove('d-none');
         return;
       }
-      window.location.reload();
+      // Close modal
+      const modalEl = document.getElementById('aiDiagnosisModal');
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      // Inject card without page reload
+      injectDiagCard(data);
     })
-    .catch(() => {
-      diagError.textContent = 'Error saving diagnosis.';
-      diagError.classList.remove('d-none');
+    .catch(err => {
+      setLoading(false);
+      aiError.textContent = 'Network error – could not reach the AI endpoint. Please try again.';
+      aiError.classList.remove('d-none');
     });
   });
 
-  // Handle Log Deletion
-  document.querySelectorAll('.delete-log-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      const title = this.getAttribute('data-title');
-      if (confirm('Delete farm log: ' + title + '?')) {
-        fetch('/crops/logs/delete/' + id + '/', {
-          method: 'POST',
-          headers: {'X-CSRFToken': csrfToken}
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'deleted') window.location.reload();
-        });
-      }
-    });
+  // Reset error on modal open
+  document.getElementById('aiDiagnosisModal').addEventListener('show.bs.modal', function() {
+    aiError.classList.add('d-none');
+    setLoading(false);
   });
 
-  // Handle Diagnosis Deletion
-  document.querySelectorAll('.delete-diagnosis-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const id = this.getAttribute('data-id');
-      const title = this.getAttribute('data-title');
-      if (confirm('Delete AI diagnosis: ' + title + '?')) {
-        fetch('/crops/diagnosis/delete/' + id + '/', {
-          method: 'POST',
-          headers: {'X-CSRFToken': csrfToken}
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'deleted') window.location.reload();
-        });
-      }
-    });
-  });
 })();
 </script>
 {% endblock %}
-

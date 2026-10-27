@@ -1,7 +1,7 @@
 -- STREAMING_CHUNK:Configuring AgriCare table structures for bsitcrud...
 
 --
--- Database: `bsitcrud`
+-- Database: `farm_pulse`
 --
 
 -- --------------------------------------------------------

@@ -15,5 +15,6 @@ urlpatterns = [
     path('logs/delete/<int:pk>/', views.log_delete_ajax, name='log_delete_ajax'),
     path('<int:crop_id>/diagnosis/add/', views.diagnosis_save_ajax, name='diagnosis_save_ajax'),
     path('diagnosis/delete/<int:pk>/', views.diagnosis_delete_ajax, name='diagnosis_delete_ajax'),
+    path('<int:crop_id>/ai-diagnose/', views.generate_ai_diagnosis, name='generate_ai_diagnosis'),
 ]
 

@@ -1,95 +1,524 @@
 {% extends "theme/base.html" %}
 {% block content %}
-<div class="container-xl">
+<style>
+  .crop-registry-page {
+    --crop-accent: #12b886;
+    --crop-accent-soft: color-mix(in srgb, var(--crop-accent) 14%, var(--tblr-bg-surface));
+    --crop-line: var(--tblr-border-color);
+    padding-bottom: 1.5rem;
+  }
+
+  .crop-registry-page .crop-page-heading {
+    padding: 0.5rem 0 1.25rem;
+  }
+
+  .crop-registry-page .crop-page-heading .page-pretitle {
+    margin-bottom: 0.35rem;
+  }
+
+  .crop-registry-page .crop-page-heading .page-title {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+  }
+
+  .crop-registry-page .crop-page-description {
+    color: var(--tblr-muted);
+    margin: 0.35rem 0 0;
+  }
+
+  .crop-registry-page .crop-stat-card {
+    height: 100%;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .crop-registry-page .crop-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--tblr-box-shadow-lg);
+  }
+
+  .crop-registry-page .crop-stat-card .card-body {
+    padding: 1rem 1.1rem;
+  }
+
+  .crop-registry-page .crop-stat-icon {
+    width: 2.8rem;
+    height: 2.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    font-size: 1.05rem;
+  }
+
+  .crop-registry-page .crop-stat-label {
+    color: var(--tblr-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+  }
+
+  .crop-registry-page .crop-stat-value {
+    display: block;
+    margin-top: 0.12rem;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .crop-registry-page .crop-toolbar {
+    padding: 1rem;
+    border: 1px solid var(--crop-line);
+    border-radius: var(--tblr-border-radius-lg);
+    background: var(--tblr-bg-surface);
+    box-shadow: var(--tblr-shadow-sm);
+  }
+
+  .crop-registry-page .crop-search-form {
+    max-width: 660px;
+  }
+
+  .crop-registry-page .crop-search-form .input-group {
+    flex: 1 1 270px;
+  }
+
+  .crop-registry-page .crop-search-form .form-select {
+    flex: 0 1 175px;
+  }
+
+  .crop-registry-page .crop-registry-card {
+    overflow: hidden;
+  }
+
+  .crop-registry-page .crop-registry-card > .card-header {
+    min-height: 76px;
+    padding: 1rem 1.25rem;
+    background:
+      radial-gradient(80% 180% at 100% 0%, color-mix(in srgb, var(--crop-accent) 8%, transparent), transparent 65%),
+      var(--tblr-bg-surface);
+  }
+
+  .crop-registry-page .crop-registry-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .crop-registry-page .crop-registry-heading-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 0.85rem;
+    color: var(--crop-accent);
+    background: var(--crop-accent-soft);
+  }
+
+  .crop-registry-page .crop-registry-subtitle {
+    margin-top: 0.15rem;
+    color: var(--tblr-muted);
+    font-size: 0.78rem;
+  }
+
+  .crop-registry-page .crop-record-count {
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--crop-line);
+    border-radius: 100rem;
+    color: var(--tblr-muted);
+    background: var(--tblr-bg-surface);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .crop-registry-page .crop-grid {
+    padding: 1.25rem;
+  }
+
+  .crop-registry-page .crop-plot-card {
+    --crop-status-color: #2fb344;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--crop-status-color) 42%, var(--crop-line));
+    border-radius: 1.35rem;
+    background: var(--tblr-bg-surface-secondary);
+    box-shadow: var(--tblr-shadow-sm);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .crop-registry-page .crop-plot-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--tblr-box-shadow-lg);
+  }
+
+  .crop-registry-page .crop-plot-card.crop-status-warning {
+    --crop-status-color: #f59f00;
+  }
+
+  .crop-registry-page .crop-plot-card.crop-status-unhealthy {
+    --crop-status-color: #d63939;
+  }
+
+  .crop-registry-page .crop-plot-cover {
+    display: block;
+    position: relative;
+    height: 210px;
+    overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+    background:
+      radial-gradient(90% 120% at 100% 0%, color-mix(in srgb, var(--crop-accent) 32%, transparent), transparent 65%),
+      linear-gradient(135deg, #193d35 0%, #14252b 100%);
+  }
+
+  .crop-registry-page .crop-plot-cover-hint {
+    position: absolute;
+    bottom: 0.85rem;
+    right: 0.85rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 100rem;
+    background: rgba(10, 16, 28, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    pointer-events: none;
+  }
+
+  .crop-registry-page .crop-plot-cover:hover .crop-plot-cover-hint {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .crop-registry-page .crop-plot-cover::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(180deg, rgba(8, 13, 24, 0.14) 0%, rgba(8, 13, 24, 0.04) 42%, rgba(8, 13, 24, 0.88) 100%);
+    pointer-events: none;
+  }
+
+  .crop-registry-page .crop-plot-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 300ms ease;
+  }
+
+  .crop-registry-page .crop-plot-card:hover .crop-plot-cover img {
+    transform: scale(1.035);
+  }
+
+  .crop-registry-page .crop-cover-placeholder {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 3rem;
+  }
+
+  .crop-registry-page .crop-plot-location,
+  .crop-registry-page .crop-plot-status {
+    position: absolute;
+    z-index: 1;
+    top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: calc(50% - 1.5rem);
+    padding: 0.42rem 0.7rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 100rem;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    backdrop-filter: blur(12px);
+  }
+
+  .crop-registry-page .crop-plot-location {
+    left: 1rem;
+    background: rgba(12, 18, 30, 0.78);
+  }
+
+  .crop-registry-page .crop-plot-location i {
+    color: #ff6b6b;
+  }
+
+  .crop-registry-page .crop-plot-status {
+    right: 1rem;
+    background: color-mix(in srgb, var(--crop-status-color) 78%, #101525);
+  }
+
+  .crop-registry-page .crop-plot-main {
+    padding: 1.1rem 1.15rem 0.95rem;
+  }
+
+  .crop-registry-page .crop-plot-name {
+    display: inline-block;
+    color: var(--tblr-body-color);
+    font-size: 1.05rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    text-decoration: none;
+  }
+
+  .crop-registry-page .crop-plot-name:hover {
+    color: var(--crop-accent);
+  }
+
+  .crop-registry-page .crop-plot-variety {
+    margin-top: 0.12rem;
+    color: var(--crop-accent);
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+
+  .crop-registry-page .crop-inspection-note {
+    margin-top: 0.85rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--crop-line);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--tblr-bg-surface) 82%, transparent);
+  }
+
+  .crop-registry-page .crop-inspection-label {
+    color: var(--tblr-muted);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .crop-registry-page .crop-inspection-text {
+    display: -webkit-box;
+    margin-top: 0.35rem;
+    overflow: hidden;
+    color: var(--tblr-body-color);
+    font-size: 0.82rem;
+    font-style: italic;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .crop-registry-page .crop-harvest-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.85rem;
+    color: var(--tblr-muted);
+    font-size: 0.76rem;
+  }
+
+  .crop-registry-page .crop-harvest-summary strong {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--tblr-body-color);
+    font-size: 0.8rem;
+    font-weight: 650;
+  }
+
+  .crop-registry-page .crop-harvest-summary .crop-yield {
+    text-align: right;
+  }
+
+  .crop-registry-page .crop-harvest-progress {
+    height: 0.35rem;
+    margin-top: 0.55rem;
+    overflow: hidden;
+    border-radius: 100rem;
+    background: color-mix(in srgb, var(--crop-accent) 14%, var(--tblr-bg-surface));
+  }
+
+  .crop-registry-page .crop-harvest-progress .progress-bar {
+    border-radius: inherit;
+    background: var(--crop-accent);
+  }
+
+  .crop-registry-page .crop-plot-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1.1rem;
+    border-top: 1px solid var(--crop-line);
+  }
+
+  .crop-registry-page .crop-plot-view-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--crop-accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .crop-registry-page .crop-plot-view-link:hover {
+    color: color-mix(in srgb, var(--crop-accent) 78%, var(--tblr-body-color));
+  }
+
+  .crop-registry-page .crop-plot-actions .btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.65rem;
+  }
+
+  .crop-registry-page .crop-empty-state {
+    padding: 3rem 1rem;
+  }
+
+  @media (max-width: 767.98px) {
+    .crop-registry-page .crop-page-heading {
+      padding-top: 0.25rem;
+    }
+
+    .crop-registry-page .crop-toolbar {
+      align-items: stretch !important;
+      padding: 0.8rem;
+    }
+
+    .crop-registry-page .crop-search-form {
+      max-width: none !important;
+    }
+
+    .crop-registry-page .crop-search-form .form-select {
+      flex: 1 1 145px;
+      max-width: none !important;
+    }
+
+    .crop-registry-page .crop-toolbar-actions {
+      width: 100%;
+    }
+
+    .crop-registry-page .crop-toolbar-actions > * {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+
+    .crop-registry-page .crop-grid {
+      padding: 0.9rem;
+    }
+
+    .crop-registry-page .crop-plot-cover {
+      height: 190px;
+    }
+
+    .crop-registry-page .crop-registry-card > .card-header {
+      min-height: 68px;
+      padding: 0.85rem 1rem;
+    }
+
+    .crop-registry-page .crop-registry-subtitle {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .crop-registry-page .crop-stat-card,
+    .crop-registry-page .crop-plot-card,
+    .crop-registry-page .crop-plot-cover img {
+      transition: none;
+    }
+  }
+</style>
+<div class="container-xl crop-registry-page">
   <!-- Page Header -->
-  <div class="page-header d-print-none" aria-label="Page header">
-    <div class="container-xl">
-      <div class="row align-items-center">
-        <div class="col">
-          <div class="page-pretitle">Farm Pulse Management</div>
-          <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
-            <h2 class="page-title mb-0">Crops & Farm Fields</h2>
-          </div>
-          <h2 class="page-title mb-0 d-md-none">Crops & Farm</h2>
-        </div>
+  <div class="page-header d-print-none crop-page-heading" aria-label="Page header">
+    <div class="row align-items-center">
+      <div class="col">
+        <div class="page-pretitle">Farm Pulse Management</div>
+        <h2 class="page-title mb-0">Crops &amp; Farm Fields</h2>
+        <p class="crop-page-description">Track crop health, field activity, and upcoming harvests.</p>
       </div>
     </div>
   </div>
-  <br>
 
   <!-- Summary KPI Cards -->
   <div class="row row-cards mb-3">
     <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
+      <div class="card card-sm crop-stat-card">
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="bg-primary text-white avatar">
+              <span class="crop-stat-icon bg-primary-lt text-primary">
                 <i class="fas fa-seedling"></i>
               </span>
             </div>
             <div class="col">
-              <div class="font-weight-medium">Total Crops</div>
-              <div class="text-muted">{{ total_count }} registered</div>
+              <div class="crop-stat-label">Total Crops</div>
+              <span class="crop-stat-value">{{ total_count }} <span class="text-muted fw-normal fs-6">registered</span></span>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
+      <div class="card card-sm crop-stat-card">
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="bg-success text-white avatar">
+              <span class="crop-stat-icon bg-success-lt text-success">
                 <i class="fas fa-check-circle"></i>
               </span>
             </div>
             <div class="col">
-              <div class="font-weight-medium">Healthy</div>
-              <div class="text-muted">{{ healthy_count }} crops</div>
+              <div class="crop-stat-label">Healthy</div>
+              <span class="crop-stat-value">{{ healthy_count }} <span class="text-muted fw-normal fs-6">crops</span></span>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
+      <div class="card card-sm crop-stat-card">
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="bg-warning text-white avatar">
+              <span class="crop-stat-icon bg-warning-lt text-warning">
                 <i class="fas fa-exclamation-triangle"></i>
               </span>
             </div>
             <div class="col">
-              <div class="font-weight-medium">Attention Needed</div>
-              <div class="text-muted">{{ warning_count|add:unhealthy_count }} warning/unhealthy</div>
+              <div class="crop-stat-label">Minor Warning</div>
+              <span class="crop-stat-value text-warning">{{ warning_count }} <span class="text-muted fw-normal fs-6">warning</span></span>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- Unhealthy Crops Card (Replaces Harvest Watch) -->
     <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
+      <div class="card card-sm crop-stat-card">
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-auto">
-              <span class="bg-purple text-white avatar">
-                <i class="fas fa-wheat-awn"></i>
+              <span class="crop-stat-icon bg-danger-lt text-danger">
+                <i class="fas fa-heart-pulse"></i>
               </span>
             </div>
             <div class="col">
-              <div class="font-weight-medium">Harvest Watch</div>
-              <div class="text-muted">
-                {% if harvest_ready_count %}
-                <span class="text-success fw-bold">{{ harvest_ready_count }} ready</span>
-                {% elif harvest_upcoming_count %}
-                <span class="text-warning fw-bold">{{ harvest_upcoming_count }} upcoming (14d)</span>
-                {% else %}
-                All crops growing
-                {% endif %}
-              </div>
+              <div class="crop-stat-label">Unhealthy Crops</div>
+              <span class="crop-stat-value text-danger">
+                {{ unhealthy_count }} <span class="text-muted fw-normal fs-6">unhealthy</span>
+              </span>
             </div>
           </div>
         </div>
@@ -98,13 +527,13 @@
   </div>
 
   <!-- Search & Actions Bar -->
-  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
-    <form method="GET" class="d-flex gap-2 flex-wrap w-100" style="max-width: 600px;">
+  <div class="crop-toolbar d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-3">
+    <form method="GET" class="crop-search-form d-flex gap-2 flex-wrap w-100">
       <div class="input-group">
         <span class="input-group-text"><i class="fas fa-search"></i></span>
-        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search crop, variety, or location...">
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search crop, variety, or location..." aria-label="Search crops, varieties, or locations">
       </div>
-      <select name="status" class="form-select" style="max-width: 170px;" onchange="this.form.submit()">
+      <select name="status" class="form-select" aria-label="Filter crops by status" onchange="this.form.submit()">
         <option value="">All Statuses</option>
         <option value="Healthy" {% if status_filter == 'Healthy' %}selected{% endif %}>Healthy</option>
         <option value="Minor Warning" {% if status_filter == 'Minor Warning' %}selected{% endif %}>Minor Warning</option>
@@ -113,10 +542,10 @@
       {% if query or status_filter %}
       <a href="{% url 'crops:crop_list' %}" class="btn btn-outline-secondary">Clear</a>
       {% endif %}
-      <button type="submit" class="btn btn-primary d-none d-sm-inline-block">Filter</button>
+      <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
-    <div class="d-flex gap-2">
+    <div class="crop-toolbar-actions d-flex gap-2">
       <a href="{% url 'crops:activity_logs' %}" class="btn btn-outline-primary text-nowrap">
         <i class="fas fa-clipboard-list me-1"></i> Daily Activities
       </a>
@@ -128,94 +557,91 @@
 
   <div id="cropAlert" class="alert alert-danger d-none" role="alert"></div>
 
-  <!-- Crops Table Card -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        Crop Registry
-        {% if query or status_filter %}
-        <span class="text-muted fw-normal fs-6">— filtered results</span>
-        {% endif %}
+  <!-- Visual Crop Registry -->
+  <div class="card crop-registry-card">
+    <div class="card-header d-flex align-items-center justify-content-between gap-3">
+      <div class="crop-registry-heading">
+        <span class="crop-registry-heading-icon"><i class="fas fa-seedling"></i></span>
+        <div>
+          <div class="card-title mb-0">
+            Registered Field Sections
+            {% if query or status_filter %}
+            <span class="text-muted fw-normal fs-6">— filtered</span>
+            {% endif %}
+          </div>
+          <div class="crop-registry-subtitle">Browse crop photos, field health, inspection notes, and harvest progress.</div>
+        </div>
       </div>
+      <span class="crop-record-count">{{ crops.paginator.count }} {% if crops.paginator.count == 1 %}crop{% else %}crops{% endif %}</span>
     </div>
-    <div class="table-responsive">
-      <table class="table table-vcenter table-hover card-table text-nowrap" id="cropTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Crop Name</th>
-            <th>Variety / Type</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Expected Harvest</th>
-            <th>Latest Observation</th>
-            <th>Registered</th>
-            <th class="w-1 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="cropTableBody">
-          {% for crop in crops %}
-          <tr data-crop-id="{{ crop.id }}">
-            <td class="text-muted">{{ forloop.counter0|add:crops.start_index }}</td>
-            <td>
-              <div class="d-flex align-items-center">
-                {% if crop.display_image %}
-                <img src="{{ crop.display_image }}" class="avatar avatar-md rounded me-2 border" alt="{{ crop.name }}" style="object-fit: cover;">
+    <div class="crop-grid" id="cropTable">
+      <div class="row g-3" id="cropTableBody">
+        {% for crop in crops %}
+        <div class="col-sm-6 col-xl-4" data-crop-id="{{ crop.id }}">
+          <article class="crop-plot-card {% if crop.status == 'Minor Warning' %}crop-status-warning{% elif crop.status == 'Unhealthy' %}crop-status-unhealthy{% endif %}">
+            <a href="{% url 'crops:crop_detail' crop.id %}" class="crop-plot-cover" title="View details for {{ crop.name }}">
+              {% if crop.display_image %}
+              <img src="{{ crop.display_image }}" alt="{{ crop.name }}" loading="lazy">
+              {% else %}
+              <div class="crop-cover-placeholder" aria-hidden="true"><i class="fas fa-seedling"></i></div>
+              {% endif %}
+              <span class="crop-plot-location" title="{{ crop.location }}"><i class="fas fa-location-dot"></i>{{ crop.location }}</span>
+              <span class="crop-plot-status">
+                {% if crop.status == 'Healthy' %}
+                <i class="fas fa-circle-check"></i> Healthy
+                {% elif crop.status == 'Minor Warning' %}
+                <i class="fas fa-triangle-exclamation"></i> Minor Warning
                 {% else %}
-                <span class="avatar avatar-md rounded me-2 bg-green-lt text-green">
-                  <i class="fas fa-seedling"></i>
-                </span>
+                <i class="fas fa-circle-exclamation"></i> Unhealthy
                 {% endif %}
-                <div>
-                  <a href="{% url 'crops:crop_detail' crop.id %}" class="fw-bold text-reset text-decoration-none">
-                    {{ crop.name }}
-                  </a>
-                  <span class="text-muted small d-block">{{ crop.crop_type }}</span>
+              </span>
+              <span class="crop-plot-cover-hint">
+                <i class="fas fa-arrow-up-right-from-square"></i> View details
+              </span>
+            </a>
+
+            <div class="crop-plot-main">
+              <a href="{% url 'crops:crop_detail' crop.id %}" class="crop-plot-name">{{ crop.name }}</a>
+              <div class="crop-plot-variety">{{ crop.crop_type }}</div>
+
+              <div class="crop-inspection-note">
+                <div class="crop-inspection-label">Latest inspection note</div>
+                <div class="crop-inspection-text" title="{{ crop.last_observation|default:'No notes recorded' }}">
+                  {{ crop.last_observation|default:"No notes recorded" }}
                 </div>
               </div>
-            </td>
-            <td><span class="badge bg-blue-lt">{{ crop.crop_type }}</span></td>
-            <td class="text-muted"><i class="fas fa-map-marker-alt text-secondary me-1"></i>{{ crop.location }}</td>
-            <td>
-              {% if crop.status == 'Healthy' %}
-              <span class="badge bg-success-lt text-success"><i class="fas fa-circle-check me-1"></i>Healthy</span>
-              {% elif crop.status == 'Minor Warning' %}
-              <span class="badge bg-warning-lt text-warning"><i class="fas fa-triangle-exclamation me-1"></i>Minor Warning</span>
-              {% else %}
-              <span class="badge bg-danger-lt text-danger"><i class="fas fa-circle-exclamation me-1"></i>Unhealthy</span>
-              {% endif %}
-            </td>
-            <td>
-              {% if crop.expected_harvest_date %}
+
+              <div class="crop-harvest-summary">
                 <div>
-                  <span class="fw-medium text-dark"><i class="far fa-calendar-check me-1 text-secondary"></i>{{ crop.expected_harvest_date|date:"M d, Y" }}</span>
-                  {% if crop.harvest_badge %}
-                  <span class="badge {{ crop.harvest_badge.class }} ms-1">
-                    <i class="fas {{ crop.harvest_badge.icon }} me-1"></i>{{ crop.harvest_badge.label }}
-                  </span>
-                  {% endif %}
+                  <span><i class="far fa-calendar-check me-1"></i>Expected harvest</span>
+                  <strong>
+                    {% if crop.expected_harvest_date %}
+                    {{ crop.expected_harvest_date|date:"M d, Y" }}
+                    {% if crop.harvest_badge %}<span class="badge {{ crop.harvest_badge.class }} ms-1">{{ crop.harvest_badge.label }}</span>{% endif %}
+                    {% else %}
+                    Not scheduled
+                    {% endif %}
+                  </strong>
                 </div>
-                {% if crop.growth_progress is not None %}
-                <div class="progress progress-xs mt-1" style="max-width: 140px;" title="Growth progress: {{ crop.growth_progress }}%">
-                  <div class="progress-bar bg-success" style="width: {{ crop.growth_progress }}%"></div>
-                </div>
-                {% endif %}
                 {% if crop.estimated_yield %}
-                <small class="text-muted d-block"><i class="fas fa-weight-hanging me-1"></i>Est: {{ crop.estimated_yield }}</small>
+                <div class="crop-yield">
+                  <span><i class="fas fa-weight-hanging me-1"></i>Est. yield</span>
+                  <strong>{{ crop.estimated_yield }}</strong>
+                </div>
                 {% endif %}
-              {% else %}
-                <span class="text-muted small">Not scheduled</span>
+              </div>
+              {% if crop.growth_progress is not None %}
+              <div class="crop-harvest-progress" role="progressbar" aria-label="Crop growth progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ crop.growth_progress }}" title="Growth progress: {{ crop.growth_progress }}%">
+                <div class="progress-bar" style="width: {{ crop.growth_progress }}%"></div>
+              </div>
               {% endif %}
-            </td>
-            <td class="text-muted" style="max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              {{ crop.last_observation|default:"No notes recorded" }}
-            </td>
-            <td class="text-muted">{{ crop.created_at|date:"M d, Y" }}</td>
-            <td class="text-center">
-              <div class="d-flex gap-1 justify-content-center">
-                <a href="{% url 'crops:crop_detail' crop.id %}" class="btn btn-ghost-secondary btn-icon btn-sm" title="View Crop Details, Logs & Diagnoses">
-                  <i class="fas fa-eye text-primary"></i>
-                </a>
+            </div>
+
+            <div class="crop-plot-footer">
+              <div class="text-muted small">
+                <i class="far fa-clock me-1"></i>Registered {{ crop.created_at|date:"M d, Y" }}
+              </div>
+              <div class="crop-plot-actions d-flex align-items-center gap-1 ms-auto">
                 <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm"
                         data-bs-toggle="modal"
                         data-bs-target="#cropModal"
@@ -230,40 +656,38 @@
                         data-estimated_yield="{{ crop.estimated_yield|default:'' }}"
                         data-last_observation="{{ crop.last_observation|default:'' }}"
                         data-image="{{ crop.display_image|default:'' }}"
-                        title="Edit Crop">
-                  <i class="fas fa-edit text-secondary"></i>
+                        aria-label="Edit {{ crop.name }}"
+                        title="Edit crop">
+                  <i class="fas fa-pen"></i>
                 </button>
-                <button type="button" class="btn btn-ghost-secondary btn-icon btn-sm"
+                <button type="button" class="btn btn-ghost-danger btn-icon btn-sm"
                         data-bs-toggle="modal"
                         data-bs-target="#deleteCropModal"
                         data-id="{{ crop.id }}"
                         data-name="{{ crop.name }}"
-                        title="Delete Crop">
-                  <i class="fas fa-trash-alt text-danger"></i>
+                        aria-label="Delete {{ crop.name }}"
+                        title="Delete crop">
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="9">
-              <div class="empty py-5">
-                <div class="empty-icon">
-                  <i class="fas fa-seedling fa-3x text-muted"></i>
-                </div>
-                <p class="empty-title">No crops found</p>
-                <p class="empty-subtitle text-muted">Get started by registering your first field crop or adjusting your search filters.</p>
-                <div class="empty-action">
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cropModal" data-mode="create">
-                    <i class="fas fa-plus-circle me-1"></i> Add First Crop
-                  </button>
-                </div>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </div>
+          </article>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <div class="empty crop-empty-state">
+            <div class="empty-icon"><i class="fas fa-seedling fa-3x text-muted"></i></div>
+            <p class="empty-title">No crops found</p>
+            <p class="empty-subtitle text-muted">Register a field crop or adjust your search filters to see your crop plots here.</p>
+            <div class="empty-action">
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cropModal" data-mode="create">
+                <i class="fas fa-plus-circle me-1"></i> Add First Crop
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
 
     <!-- Pagination -->
@@ -643,4 +1067,3 @@
 })();
 </script>
 {% endblock %}
-

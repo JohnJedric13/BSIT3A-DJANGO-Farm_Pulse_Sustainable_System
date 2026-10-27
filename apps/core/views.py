@@ -159,6 +159,16 @@ def home(request):
     total_logs = logs_qs.count()
     total_diagnoses = diagnoses_qs.count()
 
+    today = timezone.localdate()
+    harvest_ready_count = crops_qs.filter(
+        expected_harvest_date__isnull=False,
+        expected_harvest_date__lte=today
+    ).count()
+    harvest_upcoming_count = crops_qs.filter(
+        expected_harvest_date__gt=today,
+        expected_harvest_date__lte=today + timedelta(days=14)
+    ).count()
+
     healthy_percent = round((healthy_crops / total_crops * 100)) if total_crops > 0 else 0
     warning_percent = round((warning_crops / total_crops * 100)) if total_crops > 0 else 0
     unhealthy_percent = round((unhealthy_crops / total_crops * 100)) if total_crops > 0 else 0
@@ -172,6 +182,8 @@ def home(request):
         'healthy_crops': healthy_crops,
         'warning_crops': warning_crops,
         'unhealthy_crops': unhealthy_crops,
+        'harvest_ready_count': harvest_ready_count,
+        'harvest_upcoming_count': harvest_upcoming_count,
         'healthy_percent': healthy_percent,
         'warning_percent': warning_percent,
         'unhealthy_percent': unhealthy_percent,

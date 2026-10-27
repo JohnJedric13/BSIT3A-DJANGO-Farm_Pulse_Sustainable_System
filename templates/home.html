@@ -117,6 +117,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Harvest Watch (Transferred from Crops & Fields) -->
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-purple text-white avatar">
+                <i class="fas fa-wheat-awn fa-lg"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="text-muted font-weight-medium small">Harvest Watch</div>
+              <div class="h3 mb-0 font-weight-bold">
+                {% if harvest_ready_count %}
+                <span class="text-success">{{ harvest_ready_count }} ready</span>
+                {% elif harvest_upcoming_count %}
+                <span class="text-warning">{{ harvest_upcoming_count }} upcoming</span>
+                {% else %}
+                <span class="text-muted fs-5">All crops growing</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-auto">
+              <a href="{% url 'crops:crop_list' %}" class="text-muted" title="View Harvest Schedule">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Crop Health Distribution Bar (shown if crops exist) -->

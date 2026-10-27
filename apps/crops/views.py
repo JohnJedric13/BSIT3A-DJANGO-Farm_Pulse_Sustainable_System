@@ -1,3 +1,5 @@
+import os
+import re
 import datetime
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
@@ -347,4 +349,106 @@ def activity_log_save_ajax(request):
         'activity_type': log.activity_type,
     })
 
+# ---------------------------------------------------------------------------
+# Gemini AI Crop Health Diagnosis
+# ---------------------------------------------------------------------------
+@login_required(login_url='login')
+@require_POST
+def generate_ai_diagnosis(request, crop_id):
+    """
+    POST /crops/<crop_id>/ai-diagnose/
+    Calls Gemini 2.5-flash with a crop-locked agronomist system instruction,
+    saves the returned diagnosis to AIDiagnosis, and returns JSON.
+    """
+    crop = get_object_or_404(Crop, id=crop_id)
 
+    # Verify the requesting user owns this crop (mirrors scoped_crop logic)
+    if not request.user.is_superuser and crop.user != request.user:
+        return JsonResponse({'error': 'Permission denied.'}, status=403)
+
+    symptom_notes = request.POST.get('symptom_notes', '').strip()
+    if not symptom_notes:
+        return JsonResponse({'error': 'Please describe the observed symptoms.'}, status=400)
+
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key:
+        return JsonResponse(
+            {'error': 'Gemini API key is not configured. Add GEMINI_API_KEY to your .env file.'},
+            status=500,
+        )
+
+    # Build system instruction locked to this specific crop type
+    system_instruction = (
+        f"You are an expert agronomist specialized STRICTLY in {crop.crop_type} (e.g. {crop.name}).\n"
+        "CRITICAL RULES:\n"
+        f"1. You must ONLY diagnose and give advice for {crop.crop_type}.\n"
+        f"2. If the prompt asks about other crops, refuse politely and remind them you are locked to {crop.crop_type}.\n"
+        "3. Provide your response with EXACTLY these clean section headings:\n\n"
+        "DIAGNOSIS TITLE: <A concise 3 to 7 word name of the pest, disease, or condition>\n\n"
+        "VISUAL DIAGNOSIS:\n"
+        "<2-3 concise sentences identifying symptoms and primary cause>\n\n"
+        "IMMEDIATE ACTIONS:\n"
+        "- <Specific actionable organic/field step 1>\n"
+        "- <Specific actionable organic/field step 2>\n\n"
+        "PREVENTATIVE PRACTICES:\n"
+        "- <Specific preventative practice 1>\n"
+        "- <Specific preventative practice 2>\n"
+    )
+
+    user_prompt = (
+        f"Crop: {crop.name} ({crop.crop_type})\n"
+        f"Field Location: {crop.location}\n"
+        f"Observed Symptoms: {symptom_notes}\n\n"
+        "Please diagnose and provide actionable recommendations."
+    )
+
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(api_key=api_key)
+
+        response = client.models.generate_content(
+            model='gemini-flash-lite-latest',
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.2,
+            ),
+        )
+        ai_text = response.text.strip()
+    except Exception as exc:
+        return JsonResponse({'error': f'Gemini API error: {str(exc)}'}, status=500)
+
+    # Extract clean, concise diagnosis title
+    title_match = re.search(r'DIAGNOSIS TITLE:\s*([^\n\r]+)', ai_text, re.IGNORECASE)
+    if title_match:
+        diagnosis_title = title_match.group(1).strip().strip('*"`-')[:100]
+    else:
+        v_match = re.search(r'VISUAL DIAGNOSIS[:\s]*([^\n\r.]+)', ai_text, re.IGNORECASE)
+        if v_match and len(v_match.group(1).strip()) < 80:
+            diagnosis_title = v_match.group(1).strip().strip('*"`-')[:100]
+        else:
+            diagnosis_title = f"{crop.crop_type} Health Diagnosis"
+
+    # Remove DIAGNOSIS TITLE line from treatment plan text so it is not duplicated
+    clean_plan = re.sub(r'DIAGNOSIS TITLE:[^\n\r]*[\r\n]*', '', ai_text, flags=re.IGNORECASE).strip()
+    if not clean_plan:
+        clean_plan = ai_text
+
+    # Persist to DB
+    diagnosis = AIDiagnosis.objects.create(
+        crop=crop,
+        log=None,
+        symptom_summary=symptom_notes,
+        diagnosis_title=diagnosis_title,
+        treatment_plan=clean_plan,
+    )
+
+    return JsonResponse({
+        'id': diagnosis.id,
+        'title': diagnosis.diagnosis_title,
+        'symptom_summary': diagnosis.symptom_summary,
+        'treatment_plan': diagnosis.treatment_plan,
+        'created_at': diagnosis.created_at.strftime('%b %d, %Y %H:%M'),
+    })
