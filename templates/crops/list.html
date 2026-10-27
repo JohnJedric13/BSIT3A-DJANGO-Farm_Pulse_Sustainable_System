@@ -519,6 +519,16 @@
               <span class="crop-stat-value text-danger">
                 {{ unhealthy_count }} <span class="text-muted fw-normal fs-6">unhealthy</span>
               </span>
+              <div class="text-muted small mt-1">
+                Harvest:
+                {% if harvest_ready_count %}
+                <span class="text-success fw-bold">{{ harvest_ready_count }} ready</span>
+                {% elif harvest_upcoming_count %}
+                <span class="text-warning fw-bold">{{ harvest_upcoming_count }} upcoming</span>
+                {% else %}
+                All crops growing
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>
@@ -769,9 +779,9 @@
                   <option value="{{ preset.days }}" data-crop-name="{{ preset.name }}">{{ preset.name }} (~{{ preset.days }} days)</option>
                   {% endfor %}
                 </select>
-                <button type="button" class="btn btn-sm btn-outline-primary text-nowrap" id="applyPresetBtn">
+                <!-- <button type="button" class="btn btn-sm btn-outline-primary text-nowrap" id="applyPresetBtn">
                   <i class="fas fa-calculator me-1"></i> Calculate
-                </button>
+                </button> -->
               </div>
               <small class="text-muted d-block mt-1">Calculates Expected Harvest Date from Planting Date + standard crop maturity days.</small>
             </div>

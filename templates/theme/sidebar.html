@@ -50,14 +50,14 @@
           </a>
         </li>
 
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.app_name == 'info' %}active{% endif %}" href="{% url 'info:info_list' %}">
             <span class="nav-link-icon d-md-none d-lg-inline-block">
               <i class="nav-icon fas fa-address-card"></i>
             </span>
             <span class="nav-link-title">Info</span>
           </a>
-        </li>
+        </li> -->
 
         <li class="nav-item">
           <a class="nav-link {% if request.resolver_match.url_name == 'crop_list' or request.resolver_match.url_name == 'crop_detail' %}active{% endif %}" href="{% url 'crops:crop_list' %}">

@@ -2,291 +2,539 @@
 {% block content %}
 <div class="container-xl">
 
- <!-- BEGIN PAGE HEADER -->
-<div class="page-header d-print-none" aria-label="Page header">
-  <div class="container-xl">
-
-    <div class="row align-items-center">
-
-      <!-- LEFT -->
-      <div class="col">
-
-        <div class="page-pretitle">Overview</div>
-
-        <!-- TITLE + SEARCH (DESKTOP ONLY) -->
-        <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
-          <h2 class="page-title mb-0">User Management</h2>
+  <!-- BEGIN PAGE HEADER -->
+  <div class="page-header d-print-none" aria-label="Page header">
+    <div class="container-xl">
+      <div class="row align-items-center">
+        <!-- LEFT -->
+        <div class="col">
+          <div class="page-pretitle">Administration</div>
+          <div class="d-flex align-items-center gap-3 flex-wrap d-none d-md-flex">
+            <h2 class="page-title mb-0">User Management</h2>
+          </div>
+          <h2 class="page-title mb-0 d-md-none">User Management</h2>
         </div>
-
-        <!-- TITLE ONLY (MOBILE) -->
-        <h2 class="page-title mb-0 d-md-none">User Management</h2>
-
-      </div>
 
         <!-- RIGHT -->
-        <div class="col-auto">
-        <div class="btn-list">
-          <button type="button"
-             class="btn btn-primary"
-             data-bs-toggle="modal"
-             data-bs-target="#editUserModal"
-             data-mode="create">
-            <i class="ti ti-plus me-1"></i> Add User
-          </button>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <button type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editUserModal"
+                    data-mode="create">
+              <i class="ti ti-plus me-1"></i> Add User
+            </button>
+          </div>
         </div>
       </div>
-
     </div>
   </div>
-</div>
-<br>
+  <br>
 
-<!-- SEARCH BAR -->
-<form method="GET" class="mb-3">
-    <div class="input-group" style="max-width: 400px;">
+  <!-- SUMMARY KPI CARDS -->
+  <div class="row row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-primary text-white avatar">
+                <i class="fas fa-users"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Total Accounts</div>
+              <div class="text-muted">{{ total_users }} users</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-success text-white avatar">
+                <i class="fas fa-user-check"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Active Users</div>
+              <div class="text-muted">{{ active_users }} active</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-purple text-white avatar">
+                <i class="fas fa-user-shield"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Superusers</div>
+              <div class="text-muted">{{ superuser_count }} administrators</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <div class="card card-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <span class="bg-warning text-white avatar">
+                <i class="fas fa-user-tie"></i>
+              </span>
+            </div>
+            <div class="col">
+              <div class="font-weight-medium">Staff Members</div>
+              <div class="text-muted">{{ staff_count }} staff</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH & FILTER BAR -->
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-2 mb-3">
+    <form method="GET" class="d-flex gap-2 flex-wrap w-100" style="max-width: 650px;">
+      <div class="input-group">
         <span class="input-group-text"><i class="ti ti-search"></i></span>
         <input type="text"
                name="q"
                value="{{ query }}"
                class="form-control"
                placeholder="Search by name, username, or email...">
-        {% if query %}
-        <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Clear</a>
+      </div>
+
+      <select name="role" class="form-select" style="max-width: 180px;" onchange="this.form.submit()">
+        <option value="">All Roles & Status</option>
+        <option value="superuser" {% if role_filter == 'superuser' %}selected{% endif %}>Superusers</option>
+        <option value="staff" {% if role_filter == 'staff' %}selected{% endif %}>Staff</option>
+        <option value="user" {% if role_filter == 'user' %}selected{% endif %}>Regular Users</option>
+        <option value="active" {% if role_filter == 'active' %}selected{% endif %}>Active Only</option>
+        <option value="inactive" {% if role_filter == 'inactive' %}selected{% endif %}>Inactive Only</option>
+      </select>
+
+      {% if query or role_filter %}
+      <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Clear</a>
+      {% endif %}
+      <button type="submit" class="btn btn-primary d-none d-sm-inline-block">Filter</button>
+    </form>
+  </div>
+
+  <div id="userAlert" class="alert alert-danger d-none" role="alert"></div>
+
+  <!-- USERS TABLE CARD -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        All Users
+        {% if query or role_filter %}
+        <span class="text-muted fw-normal fs-6">— filtered results</span>
         {% endif %}
-        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
     </div>
-</form>
+    <div class="table-responsive">
+      <table class="table table-vcenter table-hover card-table text-nowrap" id="usersTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th>Role</th>
+            <th class="w-1 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          {% for u in users %}
+          <tr data-row-id="{{ u.id }}">
+            <td class="text-muted">{{ u.id }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="avatar avatar-sm {% if u.is_superuser %}bg-purple-lt text-purple{% elif u.is_staff %}bg-warning-lt text-warning{% else %}bg-blue-lt text-primary{% endif %}">
+                  {{ u.first_name|first|default:u.username|first|upper }}{{ u.last_name|first|upper }}
+                </span>
+                <div>
+                  <div class="fw-medium">
+                    {{ u.first_name }} {{ u.last_name }}
+                    {% if u == request.user %}
+                    <span class="badge bg-blue-lt ms-1">You</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="text-muted">{{ u.username }}</td>
+            <td class="text-muted">{{ u.email|default:"—" }}</td>
+            <td class="text-muted">{{ u.date_joined|date:"M j, Y" }}</td>
+            <td>
+              {% if u.is_active %}
+              <span class="badge bg-success-lt text-success" id="badge-status-{{ u.id }}">Active</span>
+              {% else %}
+              <span class="badge bg-danger-lt text-danger" id="badge-status-{{ u.id }}">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if u.is_superuser %}
+              <span class="badge bg-purple-lt text-purple" id="badge-role-{{ u.id }}">
+                <i class="fas fa-shield-halved me-1"></i> Superuser
+              </span>
+              {% elif u.is_staff %}
+              <span class="badge bg-warning-lt text-warning" id="badge-role-{{ u.id }}">
+                <i class="fas fa-id-badge me-1"></i> Staff
+              </span>
+              {% else %}
+              <span class="badge bg-secondary-lt text-secondary" id="badge-role-{{ u.id }}">User</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <div class="d-flex gap-1 justify-content-center align-items-center">
+                <!-- View Details -->
+                <button type="button"
+                        class="btn btn-ghost-secondary btn-icon btn-sm view-user-btn"
+                        data-id="{{ u.id }}"
+                        title="View User Details">
+                  <i class="fas fa-eye text-info"></i>
+                </button>
 
-<div id="userAlert" class="alert alert-danger d-none" role="alert"></div>
+                <!-- Edit User -->
+                <button type="button"
+                        class="btn btn-ghost-secondary btn-icon btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editUserModal"
+                        data-mode="edit"
+                        data-id="{{ u.id }}"
+                        data-username="{{ u.username }}"
+                        data-first="{{ u.first_name }}"
+                        data-last="{{ u.last_name }}"
+                        data-email="{{ u.email }}"
+                        data-active="{{ u.is_active|yesno:'true,false' }}"
+                        data-staff="{{ u.is_staff|yesno:'true,false' }}"
+                        data-superuser="{{ u.is_superuser|yesno:'true,false' }}"
+                        title="Edit User">
+                  <i class="ti ti-pencil text-primary"></i>
+                </button>
 
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                All Users
-                {% if query %}
-                <span class="text-muted fw-normal">— search results for "{{ query }}"</span>
-                {% endif %}
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-vcenter table-hover card-table text-nowrap" id="usersTable">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Joined</th>
-                        <th>Status</th>
-                        <th>Role</th>
-                        <th class="w-1">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="usersTableBody">
-                    {% for u in users %}
-                    <tr data-row-id="{{ u.id }}">
-                        <td class="text-muted">{{ u.id }}</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="avatar avatar-sm bg-blue-lt">
-                                    {{ u.first_name|first|upper }}{{ u.last_name|first|upper }}
-                                </span>
-                                <div>
-                                    <div class="fw-medium">{{ u.first_name }} {{ u.last_name }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="text-muted">{{ u.username }}</td>
-                        <td class="text-muted">{{ u.email }}</td>
-                        <td class="text-muted">{{ u.date_joined|date:"M j, Y" }}</td>
-                        <td>
-                            {% if u.is_active %}
-                            <span class="badge bg-success-lt text-success">Active</span>
-                            {% else %}
-                            <span class="badge bg-danger-lt text-danger">Inactive</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if u.is_superuser %}
-                            <span class="badge bg-purple-lt text-purple">Superuser</span>
-                            {% elif u.is_staff %}
-                            <span class="badge bg-warning-lt text-warning">Staff</span>
-                            {% else %}
-                            <span class="badge bg-secondary-lt text-secondary">User</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <a href="#"
-                                   class="btn btn-ghost-secondary btn-icon btn-sm"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#editUserModal"
-                                   data-mode="edit"
-                                   data-id="{{ u.id }}"
-                                   data-username="{{ u.username }}"
-                                   data-first="{{ u.first_name }}"
-                                   data-last="{{ u.last_name }}"
-                                   data-email="{{ u.email }}"
-                                   data-active="{{ u.is_active|yesno:'true,false' }}"
-                                   data-staff="{{ u.is_staff|yesno:'true,false' }}"
-                                   title="Edit">
-                                    <i class="ti ti-pencil text-primary"></i>
-                                </a>
-                                <a href="#"
-                                   class="btn btn-ghost-secondary btn-icon btn-sm"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#deleteUserModal"
-                                   data-id="{{ u.id }}"
-                                   data-name="{{ u.username }}"
-                                   title="Delete">
-                                    <i class="ti ti-trash text-danger"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8">
-                            <div class="empty py-5">
-                                <div class="empty-icon">
-                                    <i class="fas fa-users fa-2x text-muted"></i>
-                                </div>
-                                <p class="empty-title">No users found</p>
-                                <p class="empty-subtitle">Try adjusting your search.</p>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                <!-- More Actions Dropdown -->
+                <div class="dropdown">
+                  <button class="btn btn-ghost-secondary btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-end">
+                    <h6 class="dropdown-header">Quick Actions</h6>
 
-        <!-- Pagination -->
-        {% if users.paginator.num_pages > 1 %}
-        <div class="card-footer d-flex align-items-center">
-            <p class="m-0 text-muted">
-                Showing <span class="fw-medium">{{ users.start_index }}</span>
-                to <span class="fw-medium">{{ users.end_index }}</span>
-                of <span class="fw-medium">{{ users.paginator.count }}</span> users
-            </p>
-            <ul class="pagination m-0 ms-auto">
-                {% if users.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ users.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                        <i class="ti ti-chevron-left"></i> prev
-                    </a>
-                </li>
-                {% endif %}
-                {% for num in users.paginator.page_range %}
-                <li class="page-item {% if users.number == num %}active{% endif %}">
-                    <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
-                </li>
-                {% endfor %}
-                {% if users.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ users.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
-                        next <i class="ti ti-chevron-right"></i>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
+                    <!-- Reset Password -->
+                    <button class="dropdown-item reset-password-btn"
+                            type="button"
+                            data-id="{{ u.id }}"
+                            data-username="{{ u.username }}">
+                      <i class="fas fa-key text-warning me-2"></i> Reset Password
+                    </button>
+
+                    <!-- Toggle Active -->
+                    {% if u != request.user %}
+                    <button class="dropdown-item toggle-active-btn"
+                            type="button"
+                            data-id="{{ u.id }}"
+                            data-active="{{ u.is_active|yesno:'true,false' }}">
+                      {% if u.is_active %}
+                      <i class="fas fa-user-slash text-danger me-2"></i> Deactivate Account
+                      {% else %}
+                      <i class="fas fa-user-check text-success me-2"></i> Activate Account
+                      {% endif %}
+                    </button>
+
+                    <!-- Toggle Superuser -->
+                    <button class="dropdown-item toggle-superuser-btn"
+                            type="button"
+                            data-id="{{ u.id }}"
+                            data-superuser="{{ u.is_superuser|yesno:'true,false' }}">
+                      {% if u.is_superuser %}
+                      <i class="fas fa-user-minus text-secondary me-2"></i> Revoke Superuser
+                      {% else %}
+                      <i class="fas fa-user-shield text-purple me-2"></i> Make Superuser
+                      {% endif %}
+                    </button>
+                    {% endif %}
+
+                    <div class="dropdown-divider"></div>
+
+                    <!-- Delete User -->
+                    {% if u != request.user %}
+                    <button class="dropdown-item text-danger"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteUserModal"
+                            data-id="{{ u.id }}"
+                            data-name="{{ u.username }}">
+                      <i class="ti ti-trash me-2"></i> Delete User
+                    </button>
+                    {% else %}
+                    <span class="dropdown-item disabled text-muted"><i class="fas fa-ban me-2"></i>Cannot delete self</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8">
+              <div class="empty py-5">
+                <div class="empty-icon">
+                  <i class="fas fa-users fa-2x text-muted"></i>
+                </div>
+                <p class="empty-title">No users found</p>
+                <p class="empty-subtitle">Try adjusting your search or role filter.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if users.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex align-items-center">
+      <p class="m-0 text-muted">
+        Showing <span class="fw-medium">{{ users.start_index }}</span>
+        to <span class="fw-medium">{{ users.end_index }}</span>
+        of <span class="fw-medium">{{ users.paginator.count }}</span> users
+      </p>
+      <ul class="pagination m-0 ms-auto">
+        {% if users.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ users.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">
+            <i class="ti ti-chevron-left"></i> prev
+          </a>
+        </li>
         {% endif %}
+        {% for num in users.paginator.page_range %}
+        <li class="page-item {% if users.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if users.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ users.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if role_filter %}&role={{ role_filter }}{% endif %}">
+            next <i class="ti ti-chevron-right"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
     </div>
+    {% endif %}
+  </div>
 </div>
 
-<!-- Edit / Create User Modal -->
+<!-- ==================== MODALS ==================== -->
+
+<!-- 1. Edit / Create User Modal -->
 <div class="modal modal-blur fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalTitle">Edit User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalTitle">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editUserForm">
+        {% csrf_token %}
+        <input type="hidden" name="id" id="edit_id">
+        <div class="modal-body">
+          <div id="editUserFormError" class="alert alert-danger d-none"></div>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label required">Username</label>
+              <input type="text" name="username" id="edit_username" class="form-control" placeholder="e.g. johndoe" required>
             </div>
-            <form id="editUserForm">
-                {% csrf_token %}
-                <input type="hidden" name="id" id="edit_id">
-                <div class="modal-body">
-                    <div id="editUserFormError" class="alert alert-danger d-none"></div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label">Username</label>
-                            <input type="text" name="username" id="edit_username" class="form-control" required>
-                        </div>
-                        <div class="col-6" id="edit_password_wrap">
-                            <label class="form-label">Password</label>
-                            <input type="password" name="password" id="edit_password" class="form-control" autocomplete="new-password">
-                            <small class="form-hint" id="edit_password_hint">Leave blank to keep current password</small>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">First Name</label>
-                            <input type="text" name="first_name" id="edit_first_name" class="form-control">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" name="last_name" id="edit_last_name" class="form-control">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" id="edit_email" class="form-control">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Status</label>
-                            <div class="form-check form-switch mt-1">
-                                <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active">
-                                <label class="form-check-label" for="edit_is_active">Active</label>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Role</label>
-                            <div class="form-check form-switch mt-1">
-                                <input class="form-check-input" type="checkbox" name="is_staff" id="edit_is_staff">
-                                <label class="form-check-label" for="edit_is_staff">Staff</label>
-                            </div>
-                        </div>
+            <div class="col-6" id="edit_password_wrap">
+              <label class="form-label" id="edit_password_label">Password</label>
+              <input type="password" name="password" id="edit_password" class="form-control" autocomplete="new-password">
+              <small class="form-hint" id="edit_password_hint">Leave blank to keep current password</small>
+            </div>
+            <div class="col-6">
+              <label class="form-label">First Name</label>
+              <input type="text" name="first_name" id="edit_first_name" class="form-control" placeholder="First name">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Last Name</label>
+              <input type="text" name="last_name" id="edit_last_name" class="form-control" placeholder="Last name">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="edit_email" class="form-control" placeholder="user@example.com">
+            </div>
+
+            <!-- Role & Status Switches -->
+            <div class="col-12">
+              <label class="form-label">Account Permissions & Status</label>
+              <div class="card bg-light border-0 p-3">
+                <div class="row g-3">
+                  <div class="col-4">
+                    <label class="form-check-label fw-bold small text-muted d-block mb-1">Status</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active">
+                      <label class="form-check-label" for="edit_is_active">Active</label>
                     </div>
+                  </div>
+                  <div class="col-4">
+                    <label class="form-check-label fw-bold small text-muted d-block mb-1">Staff Access</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="is_staff" id="edit_is_staff">
+                      <label class="form-check-label" for="edit_is_staff">Staff</label>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <label class="form-check-label fw-bold small text-muted d-block mb-1">Superuser</label>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" name="is_superuser" id="edit_is_superuser">
+                      <label class="form-check-label text-purple fw-semibold" for="edit_is_superuser">Superuser</label>
+                    </div>
+                  </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="editUserSubmitBtn">Save Changes</button>
-                </div>
-            </form>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="editUserSubmitBtn">Save Changes</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
-<!-- Delete User Modal -->
+<!-- 2. View User Details Modal -->
+<div class="modal modal-blur fade" id="viewUserModal" tabindex="-1">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-id-card text-primary me-2"></i>User Profile Overview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4 text-center">
+        <span class="avatar avatar-xl rounded-circle mb-3 bg-primary-lt text-primary fs-2" id="view_avatar"></span>
+        <h3 class="mb-1" id="view_name"></h3>
+        <p class="text-muted mb-2" id="view_username"></p>
+
+        <div class="d-flex justify-content-center gap-2 mb-4">
+          <span class="badge" id="view_status_badge"></span>
+          <span class="badge" id="view_role_badge"></span>
+        </div>
+
+        <div class="card text-start">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="text-muted"><i class="fas fa-envelope me-2 text-secondary"></i>Email</span>
+              <strong id="view_email" class="text-dark"></strong>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="text-muted"><i class="fas fa-calendar-alt me-2 text-secondary"></i>Date Joined</span>
+              <span id="view_joined" class="text-dark"></span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <span class="text-muted"><i class="fas fa-clock me-2 text-secondary"></i>Last Login</span>
+              <span id="view_last_login" class="text-dark"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Reset Password Modal -->
+<div class="modal modal-blur fade" id="resetPasswordModal" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-key text-warning me-2"></i>Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="resetPasswordForm">
+        {% csrf_token %}
+        <input type="hidden" id="reset_user_id">
+        <div class="modal-body">
+          <div id="resetPasswordError" class="alert alert-danger d-none"></div>
+          <p class="text-muted small">Reset password for <strong id="reset_username_label"></strong>.</p>
+          <div class="mb-3">
+            <label class="form-label required">New Password</label>
+            <input type="password" id="reset_new_password" class="form-control" minlength="8" required>
+            <small class="form-hint">At least 8 characters</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label required">Confirm Password</label>
+            <input type="password" id="reset_confirm_password" class="form-control" minlength="8" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-warning" id="resetPasswordSubmitBtn">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Delete User Modal -->
 <div class="modal modal-blur fade" id="deleteUserModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">Delete User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Are you sure you want to delete <strong id="deleteUserName"></strong>? This cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="ti ti-trash me-1"></i> Delete User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">Are you sure you want to delete <strong id="deleteUserName"></strong>? This will remove all associated user data permanently.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+      </div>
     </div>
+  </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
 (function () {
-    const SAVE_URL   = "{% url 'users:user_save_ajax' %}";
+    const SAVE_URL = "{% url 'users:user_save_ajax' %}";
     const DELETE_URL_BASE = "/users/ajax/delete/";
+    const TOGGLE_STATUS_BASE = "/users/ajax/toggle-status/";
+    const TOGGLE_SUPERUSER_BASE = "/users/ajax/toggle-superuser/";
+    const RESET_PW_BASE = "/users/ajax/reset-password/";
+    const GET_USER_BASE = "/users/ajax/get/";
 
-    const editModal      = document.getElementById('editUserModal');
-    const editForm        = document.getElementById('editUserForm');
-    const editFormError   = document.getElementById('editUserFormError');
-    const passwordWrap    = document.getElementById('edit_password_wrap');
-    const passwordInput   = document.getElementById('edit_password');
-    const passwordHint    = document.getElementById('edit_password_hint');
-    const modalTitle       = document.getElementById('editUserModalTitle');
-    const usernameInput   = document.getElementById('edit_username');
+    const editModal = document.getElementById('editUserModal');
+    const editForm = document.getElementById('editUserForm');
+    const editFormError = document.getElementById('editUserFormError');
+    const passwordWrap = document.getElementById('edit_password_wrap');
+    const passwordInput = document.getElementById('edit_password');
+    const passwordHint = document.getElementById('edit_password_hint');
+    const modalTitle = document.getElementById('editUserModalTitle');
+    const usernameInput = document.getElementById('edit_username');
+    const isStaffCheckbox = document.getElementById('edit_is_staff');
+    const isSuperuserCheckbox = document.getElementById('edit_is_superuser');
 
     let deleteTargetId = null;
 
@@ -294,7 +542,7 @@
         const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
         return match ? decodeURIComponent(match[2]) : null;
     }
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = getCookie('csrftoken') || (document.querySelector('[name=csrfmiddlewaretoken]') ? document.querySelector('[name=csrfmiddlewaretoken]').value : '');
 
     function showFormError(msg) {
         editFormError.textContent = msg;
@@ -305,6 +553,13 @@
         editFormError.classList.add('d-none');
     }
 
+    // Auto-check Staff when Superuser is checked
+    isSuperuserCheckbox.addEventListener('change', function () {
+        if (this.checked) {
+            isStaffCheckbox.checked = true;
+        }
+    });
+
     // Populate edit/create modal on open
     editModal.addEventListener('show.bs.modal', function (e) {
         clearFormError();
@@ -314,23 +569,25 @@
 
         if (mode === 'edit') {
             modalTitle.textContent = 'Edit User';
-            usernameInput.readOnly = false;
             passwordHint.classList.remove('d-none');
             passwordInput.required = false;
 
-            document.getElementById('edit_id').value          = btn.dataset.id;
-            usernameInput.value                                = btn.dataset.username;
-            document.getElementById('edit_first_name').value  = btn.dataset.first;
-            document.getElementById('edit_last_name').value   = btn.dataset.last;
-            document.getElementById('edit_email').value       = btn.dataset.email;
+            document.getElementById('edit_id').value = btn.dataset.id;
+            usernameInput.value = btn.dataset.username;
+            document.getElementById('edit_first_name').value = btn.dataset.first || '';
+            document.getElementById('edit_last_name').value = btn.dataset.last || '';
+            document.getElementById('edit_email').value = btn.dataset.email || '';
             document.getElementById('edit_is_active').checked = btn.dataset.active === 'true';
-            document.getElementById('edit_is_staff').checked  = btn.dataset.staff === 'true';
+            isStaffCheckbox.checked = btn.dataset.staff === 'true';
+            isSuperuserCheckbox.checked = btn.dataset.superuser === 'true';
         } else {
             modalTitle.textContent = 'Add User';
             document.getElementById('edit_id').value = '';
             passwordHint.classList.add('d-none');
             passwordInput.required = true;
             document.getElementById('edit_is_active').checked = true;
+            isStaffCheckbox.checked = false;
+            isSuperuserCheckbox.checked = false;
         }
     });
 
@@ -344,7 +601,8 @@
 
         const formData = new FormData(editForm);
         formData.set('is_active', document.getElementById('edit_is_active').checked ? 'true' : 'false');
-        formData.set('is_staff',  document.getElementById('edit_is_staff').checked ? 'true' : 'false');
+        formData.set('is_staff', isStaffCheckbox.checked ? 'true' : 'false');
+        formData.set('is_superuser', isSuperuserCheckbox.checked ? 'true' : 'false');
 
         fetch(SAVE_URL, {
             method: 'POST',
@@ -370,14 +628,167 @@
         });
     });
 
-    // Delete modal — set target id/name
+    // View User Details Action
+    const viewModalEl = document.getElementById('viewUserModal');
+    const viewModal = new bootstrap.Modal(viewModalEl);
+    document.querySelectorAll('.view-user-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const userId = this.dataset.id;
+            fetch(GET_USER_BASE + userId + '/')
+            .then(res => res.json())
+            .then(data => {
+                const initials = (data.first_name ? data.first_name[0] : (data.username ? data.username[0] : 'U')) +
+                                 (data.last_name ? data.last_name[0] : '');
+                document.getElementById('view_avatar').textContent = initials.toUpperCase();
+                document.getElementById('view_name').textContent = (data.first_name || data.last_name) ? `${data.first_name} ${data.last_name}` : data.username;
+                document.getElementById('view_username').textContent = '@' + data.username;
+                document.getElementById('view_email').textContent = data.email || 'None provided';
+                document.getElementById('view_joined').textContent = data.date_joined;
+                document.getElementById('view_last_login').textContent = data.last_login;
+
+                const statusBadge = document.getElementById('view_status_badge');
+                if (data.is_active) {
+                    statusBadge.className = 'badge bg-success-lt text-success';
+                    statusBadge.textContent = 'Active Account';
+                } else {
+                    statusBadge.className = 'badge bg-danger-lt text-danger';
+                    statusBadge.textContent = 'Inactive Account';
+                }
+
+                const roleBadge = document.getElementById('view_role_badge');
+                if (data.is_superuser) {
+                    roleBadge.className = 'badge bg-purple-lt text-purple';
+                    roleBadge.textContent = 'Superuser / Administrator';
+                } else if (data.is_staff) {
+                    roleBadge.className = 'badge bg-warning-lt text-warning';
+                    roleBadge.textContent = 'Staff Member';
+                } else {
+                    roleBadge.className = 'badge bg-secondary-lt text-secondary';
+                    roleBadge.textContent = 'Standard User';
+                }
+
+                viewModal.show();
+            })
+            .catch(() => alert('Could not load user profile details.'));
+        });
+    });
+
+    // Quick Action: Toggle Active Status
+    document.querySelectorAll('.toggle-active-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const userId = this.dataset.id;
+            const currentActive = this.dataset.active === 'true';
+            const actionText = currentActive ? 'deactivate' : 'activate';
+
+            if (!confirm(`Are you sure you want to ${actionText} this user?`)) return;
+
+            fetch(TOGGLE_STATUS_BASE + userId + '/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to toggle status.');
+                return data;
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(err => alert(err.message));
+        });
+    });
+
+    // Quick Action: Toggle Superuser Status
+    document.querySelectorAll('.toggle-superuser-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const userId = this.dataset.id;
+            const currentSuperuser = this.dataset.superuser === 'true';
+            const actionText = currentSuperuser ? 'revoke superuser status from' : 'grant superuser privileges to';
+
+            if (!confirm(`Are you sure you want to ${actionText} this user?`)) return;
+
+            fetch(TOGGLE_SUPERUSER_BASE + userId + '/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to toggle superuser.');
+                return data;
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(err => alert(err.message));
+        });
+    });
+
+    // Reset Password Modal Setup & Submission
+    const resetModalEl = document.getElementById('resetPasswordModal');
+    const resetModal = new bootstrap.Modal(resetModalEl);
+    const resetForm = document.getElementById('resetPasswordForm');
+    const resetError = document.getElementById('resetPasswordError');
+
+    document.querySelectorAll('.reset-password-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            resetError.classList.add('d-none');
+            resetForm.reset();
+            document.getElementById('reset_user_id').value = this.dataset.id;
+            document.getElementById('reset_username_label').textContent = '@' + this.dataset.username;
+            resetModal.show();
+        });
+    });
+
+    resetForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        resetError.classList.add('d-none');
+        const userId = document.getElementById('reset_user_id').value;
+        const newPassword = document.getElementById('reset_new_password').value;
+        const confirmPassword = document.getElementById('reset_confirm_password').value;
+
+        if (newPassword !== confirmPassword) {
+            resetError.textContent = 'Passwords do not match.';
+            resetError.classList.remove('d-none');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('password', newPassword);
+        formData.append('confirm_password', confirmPassword);
+
+        const submitBtn = document.getElementById('resetPasswordSubmitBtn');
+        submitBtn.disabled = true;
+
+        fetch(RESET_PW_BASE + userId + '/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData,
+        })
+        .then(async res => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to reset password.');
+            return data;
+        })
+        .then(data => {
+            resetModal.hide();
+            alert(data.message || 'Password successfully reset.');
+        })
+        .catch(err => {
+            resetError.textContent = err.message;
+            resetError.classList.remove('d-none');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+        });
+    });
+
+    // Delete modal setup & confirm
     document.getElementById('deleteUserModal').addEventListener('show.bs.modal', function (e) {
         const btn = e.relatedTarget;
         deleteTargetId = btn.dataset.id;
         document.getElementById('deleteUserName').textContent = btn.dataset.name;
     });
 
-    // Confirm delete via AJAX
     document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
         if (!deleteTargetId) return;
         const btn = this;
