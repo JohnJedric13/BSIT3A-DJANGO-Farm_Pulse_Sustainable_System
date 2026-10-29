@@ -417,6 +417,49 @@ def generate_ai_diagnosis(request, crop_id):
             ),
         )
         ai_text = response.text.strip()
+    except ImportError:
+        # Fallback to direct Gemini REST API if google-genai package is not installed
+        try:
+            import json
+            import urllib.request
+            import urllib.error
+
+            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
+            req_payload = {
+                "system_instruction": {
+                    "parts": [{"text": system_instruction}]
+                },
+                "contents": [
+                    {
+                        "parts": [{"text": user_prompt}]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": 0.2
+                }
+            }
+            req_data = json.dumps(req_payload).encode('utf-8')
+            request_obj = urllib.request.Request(
+                api_url,
+                data=req_data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
+            with urllib.request.urlopen(request_obj, timeout=30) as resp:
+                res_json = json.loads(resp.read().decode('utf-8'))
+                candidates = res_json.get("candidates", [])
+                ai_text = None
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        ai_text = parts[0].get("text", "").strip()
+                if not ai_text:
+                    return JsonResponse({'error': 'No diagnosis text returned by Gemini API.'}, status=500)
+        except urllib.error.HTTPError as http_err:
+            err_body = http_err.read().decode('utf-8', errors='ignore')
+            return JsonResponse({'error': f'Gemini API HTTP error ({http_err.code}): {err_body}'}, status=500)
+        except Exception as net_err:
+            return JsonResponse({'error': f'Gemini connection error: {str(net_err)}'}, status=500)
     except Exception as exc:
         return JsonResponse({'error': f'Gemini API error: {str(exc)}'}, status=500)
 
