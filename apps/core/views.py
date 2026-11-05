@@ -1,4 +1,6 @@
-from datetime import timedelta
+from datetime import date, timedelta
+from decimal import Decimal, InvalidOperation, ROUND_CEILING
+import re
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user_model, login, logout
@@ -160,6 +162,7 @@ def home(request):
     total_diagnoses = diagnoses_qs.count()
 
     today = timezone.localdate()
+    today_logs = logs_qs.filter(log_date=today).count()
     harvest_ready_count = crops_qs.filter(
         expected_harvest_date__isnull=False,
         expected_harvest_date__lte=today
@@ -168,13 +171,113 @@ def home(request):
         expected_harvest_date__gt=today,
         expected_harvest_date__lte=today + timedelta(days=14)
     ).count()
+    next_harvest = crops_qs.filter(
+        expected_harvest_date__gte=today
+    ).order_by('expected_harvest_date').first()
+    days_until_next_harvest = (
+        (next_harvest.expected_harvest_date - today).days
+        if next_harvest else None
+    )
+    next_harvest_count = (
+        crops_qs.filter(expected_harvest_date=next_harvest.expected_harvest_date).count()
+        if next_harvest else 0
+    )
 
     healthy_percent = round((healthy_crops / total_crops * 100)) if total_crops > 0 else 0
     warning_percent = round((warning_crops / total_crops * 100)) if total_crops > 0 else 0
     unhealthy_percent = round((unhealthy_crops / total_crops * 100)) if total_crops > 0 else 0
 
+    forecast_months = []
+    current_month = today.replace(day=1)
+    for offset in range(5):
+        month_index = current_month.month - 1 + offset
+        year = current_month.year + month_index // 12
+        month = month_index % 12 + 1
+        month_start = date(year, month, 1)
+        next_month_start = date(year + (month == 12), month % 12 + 1, 1)
+        forecast_months.append({
+            'month': month_start.strftime('%b'),
+            'year': month_start.year,
+            'month_start': month_start,
+            'yield_kg': Decimal('0'),
+        })
+
+    forecast_end = next_month_start
+    harvest_crops = crops_qs.filter(
+        expected_harvest_date__gte=current_month,
+        expected_harvest_date__lt=forecast_end,
+    ).only('estimated_yield', 'expected_harvest_date')
+    forecast_amounts = {}
+    unparsed_yield_count = 0
+    yield_pattern = re.compile(
+        r'^\s*([\d,]+(?:\.\d+)?)\s*(kg|kilograms?|g|grams?|tons?|tonnes?|t|lbs?|pounds?)\s*$',
+        re.IGNORECASE,
+    )
+    unit_multipliers = {
+        'g': Decimal('0.001'),
+        'gram': Decimal('0.001'),
+        'grams': Decimal('0.001'),
+        'ton': Decimal('1000'),
+        'tons': Decimal('1000'),
+        'tonne': Decimal('1000'),
+        'tonnes': Decimal('1000'),
+        't': Decimal('1000'),
+        'lb': Decimal('0.45359237'),
+        'lbs': Decimal('0.45359237'),
+        'pound': Decimal('0.45359237'),
+        'pounds': Decimal('0.45359237'),
+    }
+    for crop in harvest_crops:
+        raw_yield = (crop.estimated_yield or '').strip()
+        if not raw_yield:
+            continue
+        match = yield_pattern.fullmatch(raw_yield)
+        if not match:
+            unparsed_yield_count += 1
+            continue
+        try:
+            amount = Decimal(match.group(1).replace(',', ''))
+        except InvalidOperation:
+            unparsed_yield_count += 1
+            continue
+        unit = match.group(2).lower()
+        if unit.startswith('kilogram'):
+            unit = 'kg'
+        elif unit.startswith('gram'):
+            unit = 'gram' if unit == 'gram' else 'grams'
+        elif unit.startswith('ton'):
+            unit = 'tonne' if unit == 'tonne' else 'tons'
+        elif unit.startswith('pound'):
+            unit = 'pound' if unit == 'pound' else 'pounds'
+        elif unit.startswith('lb'):
+            unit = 'lbs' if unit == 'lbs' else 'lb'
+        amount *= unit_multipliers.get(unit, Decimal('1'))
+        key = (crop.expected_harvest_date.year, crop.expected_harvest_date.month)
+        forecast_amounts[key] = forecast_amounts.get(key, Decimal('0')) + amount
+
+    for month in forecast_months:
+        month_start = month.pop('month_start')
+        amount = forecast_amounts.get((month_start.year, month_start.month), Decimal('0'))
+        month['yield_kg'] = amount.quantize(Decimal('0.1'))
+
+    max_forecast_yield = max((month['yield_kg'] for month in forecast_months), default=Decimal('0'))
+    chart_max = (
+        (max_forecast_yield / Decimal('4')).to_integral_value(rounding=ROUND_CEILING) * 4
+        if max_forecast_yield else Decimal('4')
+    )
+    for month in forecast_months:
+        month['height_percent'] = (
+            round(month['yield_kg'] / chart_max * 100)
+            if chart_max else 0
+        )
+    forecast_total = sum((month['yield_kg'] for month in forecast_months), Decimal('0')).quantize(Decimal('0.1'))
+    forecast_ticks = [
+        (chart_max * Decimal(step) / Decimal('4')).quantize(Decimal('1'))
+        for step in range(4, -1, -1)
+    ]
+
     recent_crops = crops_qs.order_by('-created_at')[:5]
-    recent_logs = logs_qs.select_related('crop').order_by('-log_date', '-created_at')[:5]
+    recent_logs = logs_qs.select_related('crop').order_by('-log_date', '-created_at')[:2]
     recent_diagnoses = diagnoses_qs.select_related('crop', 'log').order_by('-created_at')[:4]
 
     context = {
@@ -184,10 +287,18 @@ def home(request):
         'unhealthy_crops': unhealthy_crops,
         'harvest_ready_count': harvest_ready_count,
         'harvest_upcoming_count': harvest_upcoming_count,
+        'next_harvest_count': next_harvest_count,
+        'days_until_next_harvest': days_until_next_harvest,
         'healthy_percent': healthy_percent,
         'warning_percent': warning_percent,
         'unhealthy_percent': unhealthy_percent,
+        'forecast_months': forecast_months,
+        'forecast_total': forecast_total,
+        'forecast_ticks': forecast_ticks,
+        'forecast_chart_max': chart_max,
+        'unparsed_yield_count': unparsed_yield_count,
         'total_logs': total_logs,
+        'today_logs': today_logs,
         'total_diagnoses': total_diagnoses,
         'recent_crops': recent_crops,
         'recent_logs': recent_logs,

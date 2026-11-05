@@ -1,396 +1,210 @@
 {% extends "theme/base.html" %}
 {% block content %}
-<div class="container-xl">
-  <!-- Page Header -->
-  <div class="page-header d-print-none mb-3" aria-label="Page header">
-    <div class="container-xl">
-      <div class="row align-items-center">
-        <div class="col">
-          <div class="page-pretitle text-muted">Agriculture Care Farm Pulse</div>
-          <div class="d-flex align-items-center gap-2">
-            <h2 class="page-title mb-0">Welcome, {{ request.user.username|title }}!</h2>
-            {% if request.user.is_superuser %}
-            <span class="badge bg-purple-lt text-purple">Administrator</span>
-            {% endif %}
+<div class="container-xl dashboard-container">
+  <div class="row row-cards dashboard-metrics mb-4 g-3">
+    <div class="col-sm-6 col-xl-3">
+      <div class="card dashboard-metric-card h-100">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <div class="metric-label">Total monitored crops</div>
+            <div class="metric-row"><strong class="metric-value">{{ total_crops }}</strong><span class="metric-chip green">Monitored</span></div>
           </div>
-          <div class="text-muted small mt-1">Here is the latest health, activity, and diagnostic summary of your farm crops.</div>
+          <span class="metric-icon green"><i class="fas fa-seedling"></i></span>
         </div>
-        <div class="col-auto ms-auto d-print-none">
-          <div class="btn-list">
-            <a href="{% url 'crops:crop_list' %}" class="btn btn-primary d-none d-sm-inline-block">
-              <i class="fas fa-seedling me-1"></i> Manage Crops
-            </a>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card dashboard-metric-card h-100">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <div class="metric-label">Healthy crops</div>
+            <div class="metric-row"><strong class="metric-value">{{ healthy_crops }}</strong><span class="metric-chip green">{{ healthy_percent }}% ratio</span></div>
           </div>
+          <span class="metric-icon blue"><i class="fas fa-circle-check"></i></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card dashboard-metric-card h-100">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <div class="metric-label">Attention needed</div>
+            <div class="metric-row"><strong class="metric-value">{{ warning_crops }}</strong><span class="metric-chip amber">{{ warning_percent }}% warning</span></div>
+          </div>
+          <span class="metric-icon amber"><i class="fas fa-circle-exclamation"></i></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+      <div class="card dashboard-metric-card h-100">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <div class="metric-label">Harvest watch</div>
+            <div class="metric-row">
+              <strong class="metric-value">{% if next_harvest_count %}{{ next_harvest_count }}{% else %}{{ harvest_ready_count }}{% endif %}</strong>
+              {% if days_until_next_harvest is not None %}
+              <span class="metric-chip purple">{% if days_until_next_harvest == 0 %}Ready today{% else %}{{ days_until_next_harvest }} day{{ days_until_next_harvest|pluralize }} left{% endif %}</span>
+              {% elif harvest_ready_count %}
+              <span class="metric-chip purple">{{ harvest_ready_count }} overdue</span>
+              {% else %}
+              <span class="metric-chip purple">No date set</span>
+              {% endif %}
+            </div>
+          </div>
+          <span class="metric-icon purple"><i class="fas fa-wheat-awn"></i></span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Primary Metric KPI Cards -->
-  <div class="row row-cards mb-4">
-    <!-- Total Crops -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="bg-primary text-white avatar">
-                <i class="fas fa-seedling fa-lg"></i>
-              </span>
-            </div>
-            <div class="col">
-              <div class="text-muted font-weight-medium small">Total Crops</div>
-              <div class="h2 mb-0 font-weight-bold">{{ total_crops }}</div>
-            </div>
-            <div class="col-auto">
-              <a href="{% url 'crops:crop_list' %}" class="text-muted" title="View Crops">
-                <i class="fas fa-chevron-right"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Healthy Crops -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="bg-success text-white avatar">
-                <i class="fas fa-circle-check fa-lg"></i>
-              </span>
-            </div>
-            <div class="col">
-              <div class="text-muted font-weight-medium small">Healthy Crops</div>
-              <div class="h2 mb-0 font-weight-bold text-success">{{ healthy_crops }}</div>
-            </div>
-            <div class="col-auto">
-              <span class="badge bg-success-lt">{{ healthy_percent }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Minor Warning -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="bg-warning text-white avatar">
-                <i class="fas fa-triangle-exclamation fa-lg"></i>
-              </span>
-            </div>
-            <div class="col">
-              <div class="text-muted font-weight-medium small">Attention Needed</div>
-              <div class="h2 mb-0 font-weight-bold text-warning">{{ warning_crops }}</div>
-            </div>
-            <div class="col-auto">
-              <span class="badge bg-warning-lt">{{ warning_percent }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Unhealthy / Critical -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="bg-danger text-white avatar">
-                <i class="fas fa-heart-pulse fa-lg"></i>
-              </span>
-            </div>
-            <div class="col">
-              <div class="text-muted font-weight-medium small">Unhealthy</div>
-              <div class="h2 mb-0 font-weight-bold text-danger">{{ unhealthy_crops }}</div>
-            </div>
-            <div class="col-auto">
-              <span class="badge bg-danger-lt">{{ unhealthy_percent }}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Harvest Watch (Transferred from Crops & Fields) -->
-    <div class="col-sm-6 col-lg-3">
-      <div class="card card-sm">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-auto">
-              <span class="bg-purple text-white avatar">
-                <i class="fas fa-wheat-awn fa-lg"></i>
-              </span>
-            </div>
-            <div class="col">
-              <div class="text-muted font-weight-medium small">Harvest Watch</div>
-              <div class="h3 mb-0 font-weight-bold">
-                {% if harvest_ready_count %}
-                <span class="text-success">{{ harvest_ready_count }} ready</span>
-                {% elif harvest_upcoming_count %}
-                <span class="text-warning">{{ harvest_upcoming_count }} upcoming</span>
-                {% else %}
-                <span class="text-muted fs-5">All crops growing</span>
-                {% endif %}
-              </div>
-            </div>
-            <div class="col-auto">
-              <a href="{% url 'crops:crop_list' %}" class="text-muted" title="View Harvest Schedule">
-                <i class="fas fa-chevron-right"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Crop Health Distribution Bar (shown if crops exist) -->
-  {% if total_crops > 0 %}
-  <div class="card mb-4">
-    <div class="card-body py-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h4 class="card-title mb-0 small text-uppercase text-muted">Crop Health Distribution</h4>
-        <span class="small text-muted">{{ total_crops }} Total Monitored Fields</span>
-      </div>
-      <div class="progress progress-separated mb-2" style="height: 12px;">
-        <div class="progress-bar bg-success" role="progressbar" style="width: {{ healthy_percent }}%" aria-label="Healthy"></div>
-        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ warning_percent }}%" aria-label="Minor Warning"></div>
-        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ unhealthy_percent }}%" aria-label="Unhealthy"></div>
-      </div>
-      <div class="row small text-muted g-2">
-        <div class="col-auto d-flex align-items-center">
-          <span class="legend-indicator bg-success me-1 d-inline-block rounded-circle" style="width: 8px; height: 8px;"></span>
-          Healthy: <strong class="ms-1 text-dark">{{ healthy_crops }}</strong>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-          <span class="legend-indicator bg-warning me-1 d-inline-block rounded-circle" style="width: 8px; height: 8px;"></span>
-          Minor Warning: <strong class="ms-1 text-dark">{{ warning_crops }}</strong>
-        </div>
-        <div class="col-auto d-flex align-items-center">
-          <span class="legend-indicator bg-danger me-1 d-inline-block rounded-circle" style="width: 8px; height: 8px;"></span>
-          Unhealthy: <strong class="ms-1 text-dark">{{ unhealthy_crops }}</strong>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <!-- Main Content Grid -->
   <div class="row g-4 mb-4">
-    <!-- Left Column: Recent Crops Table -->
-    <div class="col-lg-8">
-      <div class="card h-100">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h3 class="card-title mb-0">
-            <i class="fas fa-seedling text-primary me-2"></i> Recent Field Crops
-          </h3>
-          <a href="{% url 'crops:crop_list' %}" class="btn btn-ghost-primary btn-sm">
-            View All <i class="fas fa-arrow-right ms-1"></i>
-          </a>
+    <div class="col-xl-8">
+      <section class="card premium-panel dashboard-panel h-100">
+        <div class="reference-panel-header">
+          <div>
+            <div class="panel-kicker"><i class="fas fa-chart-column me-1"></i> Expected harvest yield projections</div>
+            <div class="text-muted small mt-1">Monthly estimated crop yields in Kilograms (KG)</div>
+          </div>
+          <span class="forecast-total">Est. Total: {{ forecast_total|floatformat:"0" }} KG</span>
+        </div>
+        <div class="panel-body forecast-panel-body">
+          <div class="yield-chart reference-yield-chart" role="img" aria-label="Estimated crop yields in kilograms by month">
+            <div class="forecast-y-axis" aria-hidden="true">
+              {% for tick in forecast_ticks %}<span>{{ tick }}</span>{% endfor %}
+            </div>
+            <div class="forecast-plot">
+              <div class="forecast-grid" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+              {% for month in forecast_months %}
+              <div class="yield-bar-group">
+                <span class="forecast-count">{% if month.yield_kg %}{{ month.yield_kg|floatformat:"0" }}{% endif %}</span>
+                <div class="yield-bar-shell">
+                  <span class="yield-bar {% if not month.yield_kg %}is-empty{% endif %}" style="--bar-height: {{ month.height_percent }}%;" title="{{ month.yield_kg|floatformat:'1' }} KG estimated yield"></span>
+                </div>
+                <small>{{ month.month }} {{ month.year }}</small>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="forecast-chart-note"><span class="legend-swatch" style="background:#0b8f70;"></span> Estimated crop yield</div>
+          {% if unparsed_yield_count %}
+          <div class="yield-data-note" role="note">{{ unparsed_yield_count }} yield estimate{{ unparsed_yield_count|pluralize }} could not be charted. Enter a number with a unit, such as 500 kg or 2.5 tons.</div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+
+    <div class="col-xl-4">
+      <section class="card premium-panel health-panel dashboard-panel h-100">
+        <div class="reference-panel-header">
+          <div class="panel-kicker"><i class="fas fa-chart-pie me-1"></i> Crop health ratio</div>
+          <span class="panel-meta">{{ total_crops }} Fields Total</span>
+        </div>
+        <div class="panel-body health-panel-body">
+          <div class="health-donut {% if not total_crops %}is-empty{% endif %}" style="--healthy:{{ healthy_percent }};--warning:{{ warning_percent }};--unhealthy:{{ unhealthy_percent }};" role="img" aria-label="{{ healthy_crops }} healthy, {{ warning_crops }} warning, {{ unhealthy_crops }} critical">
+            <div class="health-donut-inner"></div>
+          </div>
+          <div class="health-summary">
+            <div class="health-summary-item healthy">
+              <strong>{{ healthy_crops }} Healthy</strong>
+              <span>{{ healthy_percent }}%</span>
+            </div>
+            <div class="health-summary-item warning">
+              <strong>{{ warning_crops }} Warning</strong>
+              <span>{{ warning_percent }}%</span>
+            </div>
+            <div class="health-summary-item critical">
+              <strong>{{ unhealthy_crops }} Critical</strong>
+              <span>{{ unhealthy_percent }}%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-xl-8">
+      <section class="card premium-panel dashboard-panel h-100">
+        <div class="reference-panel-header">
+          <h2 class="panel-title text-uppercase">Registered Crop Plots</h2>
+          <a href="{% url 'crops:crop_list' %}" class="dashboard-view-all">View All <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
         <div class="table-responsive">
-          <table class="table table-vcenter table-hover card-table text-nowrap">
+          <table class="table dashboard-crop-table">
             <thead>
-              <tr>
-                <th>Crop Name</th>
-                <th>Variety</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Expected Harvest</th>
-                <th>Observation</th>
-                <th class="w-1 text-center">Action</th>
-              </tr>
+              <tr><th>Crop Name</th><th>Variety</th><th>Location</th><th>Status</th><th class="text-end">Expected Harvest</th></tr>
             </thead>
             <tbody>
               {% for crop in recent_crops %}
               <tr>
                 <td>
-                  <div class="d-flex align-items-center">
+                  <a href="{% url 'crops:crop_detail' crop.id %}" class="dashboard-crop-name">
                     {% if crop.display_image %}
-                    <img src="{{ crop.display_image }}" class="avatar avatar-sm rounded me-2 border" alt="{{ crop.name }}" style="object-fit: cover;">
+                    <img src="{{ crop.display_image }}" alt="" class="dashboard-crop-avatar">
                     {% else %}
-                    <span class="avatar avatar-sm rounded me-2 bg-green-lt text-green">
-                      <i class="fas fa-seedling"></i>
-                    </span>
+                    <span class="dashboard-crop-avatar crop-avatar-fallback"><i class="fas fa-seedling"></i></span>
                     {% endif %}
-                    <a href="{% url 'crops:crop_detail' crop.id %}" class="fw-bold text-reset text-decoration-none">
-                      {{ crop.name }}
-                    </a>
-                  </div>
+                    {{ crop.name }}
+                  </a>
                 </td>
-                <td><span class="badge bg-blue-lt">{{ crop.crop_type }}</span></td>
-                <td class="text-muted small"><i class="fas fa-map-marker-alt text-secondary me-1"></i>{{ crop.location }}</td>
+                <td class="crop-variety">{{ crop.crop_type }}</td>
+                <td class="crop-location"><i class="fas fa-location-dot me-1"></i>{{ crop.location }}</td>
                 <td>
                   {% if crop.status == 'Healthy' %}
-                  <span class="badge bg-success-lt text-success"><i class="fas fa-circle-check me-1"></i>Healthy</span>
+                  <span class="dashboard-status healthy"><span></span>Healthy</span>
                   {% elif crop.status == 'Minor Warning' %}
-                  <span class="badge bg-warning-lt text-warning"><i class="fas fa-triangle-exclamation me-1"></i>Warning</span>
+                  <span class="dashboard-status warning"><span></span>Warning</span>
                   {% else %}
-                  <span class="badge bg-danger-lt text-danger"><i class="fas fa-circle-exclamation me-1"></i>Unhealthy</span>
+                  <span class="dashboard-status critical"><span></span>Critical</span>
                   {% endif %}
                 </td>
-                <td>
+                <td class="text-end">
                   {% if crop.expected_harvest_date %}
-                    <span class="small text-dark fw-medium">{{ crop.expected_harvest_date|date:"M d, Y" }}</span>
-                    {% if crop.harvest_badge %}
-                    <span class="badge {{ crop.harvest_badge.class }} ms-1" style="font-size: 0.75rem;">
-                      {{ crop.harvest_badge.label }}
-                    </span>
-                    {% endif %}
-                  {% else %}
-                    <span class="text-muted small">—</span>
+                  <span class="harvest-date">{{ crop.expected_harvest_date|date:"M d, Y" }}</span>
+                  {% if crop.days_until_harvest is not None and crop.days_until_harvest >= 0 %}
+                  <span class="harvest-days">(In {{ crop.days_until_harvest }} days)</span>
                   {% endif %}
-                </td>
-                <td class="text-muted small" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                  {{ crop.last_observation|default:"—" }}
-                </td>
-                <td class="text-center">
-                  <a href="{% url 'crops:crop_detail' crop.id %}" class="btn btn-ghost-primary btn-icon btn-sm" title="Open Field Profile">
-                    <i class="fas fa-chevron-right"></i>
-                  </a>
+                  {% else %}
+                  <span class="harvest-days">Not scheduled</span>
+                  {% endif %}
                 </td>
               </tr>
               {% empty %}
-              <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                  <i class="fas fa-seedling fa-2x mb-2 d-block text-muted"></i>
-                  No crops registered yet.
-                  <div class="mt-2">
-                    <a href="{% url 'crops:crop_list' %}" class="btn btn-primary btn-sm">
-                      <i class="fas fa-plus me-1"></i> Register Your First Crop
-                    </a>
-                  </div>
-                </td>
-              </tr>
+              <tr><td colspan="5" class="dashboard-empty">No crop plots registered yet. <a href="{% url 'crops:crop_list' %}">Add your first crop</a>.</td></tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </div>
 
-    <!-- Right Column: Quick Stats & AI Diagnosis Highlights -->
-    <div class="col-lg-4">
-      <div class="d-flex flex-column gap-3 h-100">
-        <!-- Farm Pulse Activity Counter Card -->
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h4 class="card-title text-muted small text-uppercase mb-0">Daily Activities</h4>
-              <span class="badge bg-primary-lt">{{ total_logs }} Total</span>
-            </div>
-            <div class="p-3 bg-light rounded text-center mb-3">
-              <div class="text-muted small mb-1"><i class="fas fa-clipboard-list text-primary me-1"></i>Logged Daily Tasks</div>
-              <div class="h2 mb-0 font-weight-bold text-primary">{{ total_logs }}</div>
-            </div>
-            <a href="{% url 'crops:activity_logs' %}" class="btn btn-primary btn-sm w-100">
-              <i class="fas fa-clipboard-list me-1"></i> Open Daily Activity Logger
-            </a>
-          </div>
+    <div class="col-xl-4">
+      <section class="card premium-panel dashboard-panel h-100">
+        <div class="reference-panel-header">
+          <h2 class="panel-title text-uppercase"><i class="fas fa-calendar-check text-success me-2"></i>Daily Activity Log</h2>
+          <span class="forecast-total">{{ today_logs }} Logged Today</span>
         </div>
-
-        <!-- Latest AI Diagnoses Card 
-        <div class="card flex-fill">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title mb-0">
-              <i class="fas fa-brain text-success me-2"></i> Recent AI Diagnoses
-            </h4>
-          </div>
-          <div class="card-body p-3">
-            {% for diag in recent_diagnoses %}
-            <div class="border-bottom pb-2 mb-2 {% if forloop.last %}border-0 pb-0 mb-0{% endif %}">
-              <div class="d-flex justify-content-between align-items-start">
-                <a href="{% url 'crops:crop_detail' diag.crop.id %}" class="fw-bold text-primary text-decoration-none small">
-                  {{ diag.diagnosis_title }}
-                </a>
-                <span class="badge bg-secondary-lt text-dark" style="font-size: 0.7rem;">{{ diag.created_at|date:"M d" }}</span>
-              </div>
-              <div class="text-muted small">Field: <strong class="text-dark">{{ diag.crop.name }}</strong></div>
-              <p class="text-secondary small mb-0 text-truncate" title="{{ diag.treatment_plan }}">
-                <i class="fas fa-shield-alt text-success me-1"></i>{{ diag.treatment_plan }}
-              </p>
-            </div>
-            {% empty %}
-            <div class="text-center py-3 text-muted small">
-              <i class="fas fa-robot fa-2x mb-2 d-block text-muted"></i>
-              No AI diagnoses recorded yet.
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-  <!-- Bottom Section: Latest Field Activity Logs
-  <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h3 class="card-title mb-0">
-        <i class="fas fa-clipboard-check text-primary me-2"></i> Recent Field Activities & Logs
-      </h3>
-      <a href="{% url 'crops:crop_list' %}" class="btn btn-ghost-primary btn-sm">
-        Go to Crops <i class="fas fa-arrow-right ms-1"></i>
-      </a>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-vcenter card-table text-nowrap">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Crop Field</th>
-            <th>Activity Type</th>
-            <th>Observed Condition</th>
-            <th>Notes & Details</th>
-            <th class="w-1 text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
+        <div class="activity-preview-list">
           {% for log in recent_logs %}
-          <tr>
-            <td class="text-muted">{{ log.log_date|date:"M d, Y" }}</td>
-            <td>
-              <a href="{% url 'crops:crop_detail' log.crop.id %}" class="fw-bold text-reset text-decoration-none">
-                {{ log.crop.name }}
-              </a>
-            </td>
-            <td><span class="badge bg-primary-lt">{{ log.activity_type }}</span></td>
-            <td>
-              {% if "unhealthy" in log.observed_condition|lower or "sick" in log.observed_condition|lower %}
-              <span class="badge bg-danger-lt text-danger">{{ log.observed_condition }}</span>
-              {% elif "warning" in log.observed_condition|lower or "yellow" in log.observed_condition|lower %}
-              <span class="badge bg-warning-lt text-warning">{{ log.observed_condition }}</span>
-              {% else %}
-              <span class="badge bg-success-lt text-success">{{ log.observed_condition }}</span>
-              {% endif %}
-            </td>
-            <td class="text-muted small" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              {{ log.notes }}
-            </td>
-            <td class="text-center">
-              <a href="{% url 'crops:crop_detail' log.crop.id %}" class="btn btn-ghost-secondary btn-icon btn-sm" title="View Crop Profile">
-                <i class="fas fa-eye text-primary"></i>
-              </a>
-            </td>
-          </tr>
+          <a href="{% url 'crops:crop_detail' log.crop.id %}" class="activity-preview">
+            <div class="activity-preview-heading">
+              <strong>{{ log.crop.name }}</strong>
+              <span class="activity-type-pill">{{ log.activity_type }}</span>
+            </div>
+            <div class="activity-preview-note">{{ log.notes|default:log.observed_condition|truncatechars:90 }}</div>
+            <div class="activity-preview-date">{{ log.log_date|date:"M d, Y" }}</div>
+          </a>
           {% empty %}
-          <tr>
-            <td colspan="6" class="text-center py-4 text-muted">
-              <i class="fas fa-clipboard fa-2x mb-2 d-block text-muted"></i>
-              No activity logs recorded yet. Visit any crop profile to log daily field activities.
-            </td>
-          </tr>
+          <div class="dashboard-empty">No activities logged yet.</div>
           {% endfor %}
-        </tbody>
-      </table>
+        </div>
+        <div class="activity-preview-action">
+          <a href="{% url 'crops:activity_logs' %}" class="btn btn-primary w-100">
+            <i class="fas fa-circle-plus me-1"></i> Open Daily Activity Logger
+          </a>
+        </div>
+      </section>
     </div>
-  </div> -->
-
+  </div>
 </div>
 {% endblock %}
