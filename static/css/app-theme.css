@@ -1455,6 +1455,106 @@ html {
   color: #b45309;
 }
 
+/* Sidebar attention badge on Crops & Farm menu item */
+.dh-sidebar .nav-link .badge.bg-danger {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.35rem 0.55rem;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45);
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+
+/* Scrollable Today Activity Log list on dashboard */
+.scrollable-today-logs {
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--tblr-border-color) transparent;
+}
+
+.scrollable-today-logs::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-today-logs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-today-logs::-webkit-scrollbar-thumb {
+  background: var(--tblr-border-color);
+  border-radius: 999px;
+}
+
+.scrollable-today-logs::-webkit-scrollbar-thumb:hover {
+  background: var(--tblr-muted);
+}
+
+.activity-preview {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--tblr-border-color);
+  border-radius: 0.85rem;
+  margin-bottom: 0.5rem;
+  background: var(--tblr-bg-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.activity-preview:hover {
+  border-color: color-mix(in srgb, var(--tblr-primary) 40%, var(--tblr-border-color));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: var(--tblr-bg-surface-secondary);
+}
+
+.activity-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.activity-preview-heading strong {
+  display: block;
+  color: var(--tblr-body-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.activity-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 100rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--tblr-bg-surface-tertiary);
+  color: var(--tblr-muted);
+  border: 1px solid var(--tblr-border-color);
+}
+
+.activity-preview-note {
+  font-size: 0.78rem;
+  color: var(--tblr-muted);
+  line-height: 1.45;
+  margin-bottom: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.activity-preview-date {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--tblr-primary);
+}
+
 @media (max-width: 767.98px) {
   .health-donut {
     width: 155px;
@@ -2417,5 +2517,186 @@ html {
   .forecast-total {
     padding: 0.35rem 0.45rem;
     font-size: 0.58rem;
+  }
+}
+
+.urgent-warning {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.15rem;
+  padding: 1rem 3.25rem 1rem 1rem;
+  overflow: hidden;
+  border: 1px solid #ffd1c9;
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(255, 116, 87, 0.1), transparent 42%),
+    linear-gradient(105deg, #fff8f6 0%, #fffdfc 72%, #fff9f6 100%);
+  box-shadow: 0 8px 20px -17px rgba(190, 53, 38, 0.55);
+  animation: urgent-warning-enter 380ms ease-out both;
+}
+
+.urgent-warning::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ff9879, #e3483d);
+  content: "";
+}
+
+.urgent-warning-icon {
+  display: inline-flex;
+  width: 2.8rem;
+  height: 2.8rem;
+  flex: 0 0 2.8rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffd1c9;
+  border-radius: 0.85rem;
+  color: #d64235;
+  background: #fff0ec;
+  font-size: 1.1rem;
+}
+
+.urgent-warning-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.urgent-warning-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.urgent-warning-eyebrow {
+  color: #bd473b;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.105em;
+  text-transform: uppercase;
+}
+
+.urgent-warning-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid #ffd8cf;
+  border-radius: 999px;
+  padding: 0.13rem 0.45rem;
+  color: #b83e35;
+  background: #fff;
+  font-size: 0.61rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.urgent-warning-copy > strong {
+  color: #492824;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.urgent-warning-description {
+  color: #856662;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.urgent-warning-action {
+  display: inline-flex;
+  min-height: 2.45rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-left: auto;
+  border: 1px solid #e65d4d;
+  border-radius: 0.75rem;
+  padding: 0.55rem 0.8rem;
+  color: #fff !important;
+  background: linear-gradient(135deg, #e65d4d, #cf4039);
+  box-shadow: 0 6px 12px -8px rgba(190, 53, 38, 0.8);
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.urgent-warning-action:hover {
+  transform: translateY(-1px);
+  color: #fff;
+  background: linear-gradient(135deg, #d94f42, #bc352f);
+  box-shadow: 0 9px 16px -9px rgba(190, 53, 38, 0.85);
+}
+
+.urgent-warning-dismiss {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 0.5rem;
+  color: #a77a74;
+  background: transparent;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.urgent-warning-dismiss:hover {
+  color: #9e332c;
+  background: rgba(205, 64, 54, 0.08);
+}
+
+@keyframes urgent-warning-enter {
+  from {
+    transform: translateY(-5px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .urgent-warning {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem 2.8rem 0.85rem 0.85rem;
+  }
+
+  .urgent-warning-icon {
+    width: 2.45rem;
+    height: 2.45rem;
+    flex-basis: 2.45rem;
+  }
+
+  .urgent-warning-copy {
+    flex: 1 1 calc(100% - 3.3rem);
+  }
+
+  .urgent-warning-copy > strong {
+    font-size: 0.82rem;
+  }
+
+  .urgent-warning-action {
+    margin-left: 3.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .urgent-warning,
+  .urgent-warning-action {
+    animation: none;
+    transition: none;
   }
 }

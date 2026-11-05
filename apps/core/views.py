@@ -277,7 +277,7 @@ def home(request):
     ]
 
     recent_crops = crops_qs.order_by('-created_at')[:5]
-    recent_logs = logs_qs.select_related('crop').order_by('-log_date', '-created_at')[:2]
+    recent_logs = logs_qs.select_related('crop').order_by('-log_date', '-created_at')
     recent_diagnoses = diagnoses_qs.select_related('crop', 'log').order_by('-created_at')[:4]
 
     context = {
@@ -285,6 +285,7 @@ def home(request):
         'healthy_crops': healthy_crops,
         'warning_crops': warning_crops,
         'unhealthy_crops': unhealthy_crops,
+        'attention_count': unhealthy_crops,
         'harvest_ready_count': harvest_ready_count,
         'harvest_upcoming_count': harvest_upcoming_count,
         'next_harvest_count': next_harvest_count,

@@ -1,5 +1,26 @@
 {% extends "theme/base.html" %}
 {% block content %}
+{% if unhealthy_crops and unhealthy_crops > 0 %}
+<div class="urgent-warning d-print-none" role="alert" aria-labelledby="urgent-warning-title">
+  <div class="urgent-warning-icon" aria-hidden="true"><i class="fas fa-triangle-exclamation"></i></div>
+  <div class="urgent-warning-copy">
+    <div class="urgent-warning-heading">
+      <span class="urgent-warning-eyebrow">Action required</span>
+      <span class="urgent-warning-count"><span id="urgent-crop-count">{{ unhealthy_crops }}</span> critical</span>
+    </div>
+    <strong id="urgent-warning-title">
+      {% if unhealthy_crops == 1 %}1 crop needs immediate attention{% else %}{{ unhealthy_crops }} crops need immediate attention{% endif %}
+    </strong>
+    <span class="urgent-warning-description">Review crop health and take action to protect your harvest.</span>
+  </div>
+  <a href="{% url 'crops:crop_list' %}?status=Unhealthy" class="urgent-warning-action">
+    <span>Review unhealthy crops</span><i class="fas fa-arrow-right" aria-hidden="true"></i>
+  </a>
+  <button type="button" class="urgent-warning-dismiss" data-bs-dismiss="alert" aria-label="Dismiss urgent crop warning">
+    <i class="fas fa-xmark" aria-hidden="true"></i>
+  </button>
+</div>
+{% endif %}
 <div class="container-xl dashboard-container">
   <div class="row row-cards dashboard-metrics mb-4 g-3">
     <div class="col-sm-6 col-xl-3">
@@ -146,6 +167,11 @@
                     {% endif %}
                     {{ crop.name }}
                   </a>
+                  {% if crop.status == 'Unhealthy' or crop.status == 'Minor Warning' %}
+                  <a href="{% url 'crops:crop_detail' crop.id %}?open_ai_diag=1" class="btn btn-sm btn-outline-danger mt-1 d-inline-block">
+                    <i class="fas fa-brain me-1"></i> Inspect Crop &amp; Run AI Scan &rarr;
+                  </a>
+                  {% endif %}
                 </td>
                 <td class="crop-variety">{{ crop.crop_type }}</td>
                 <td class="crop-location"><i class="fas fa-location-dot me-1"></i>{{ crop.location }}</td>
@@ -182,9 +208,9 @@
       <section class="card premium-panel dashboard-panel h-100">
         <div class="reference-panel-header">
           <h2 class="panel-title text-uppercase"><i class="fas fa-calendar-check text-success me-2"></i>Daily Activity Log</h2>
-          <span class="forecast-total">{{ today_logs }} Logged Today</span>
+          <span class="forecast-total">{{ recent_logs|length }} Logged</span>
         </div>
-        <div class="activity-preview-list">
+        <div class="activity-preview-list scrollable-today-logs">
           {% for log in recent_logs %}
           <a href="{% url 'crops:crop_detail' log.crop.id %}" class="activity-preview">
             <div class="activity-preview-heading">
@@ -195,7 +221,7 @@
             <div class="activity-preview-date">{{ log.log_date|date:"M d, Y" }}</div>
           </a>
           {% empty %}
-          <div class="dashboard-empty">No activities logged yet.</div>
+          <div class="dashboard-empty">No activities logged today.</div>
           {% endfor %}
         </div>
         <div class="activity-preview-action">

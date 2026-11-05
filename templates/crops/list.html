@@ -519,16 +519,6 @@
               <span class="crop-stat-value text-danger">
                 {{ unhealthy_count }} <span class="text-muted fw-normal fs-6">unhealthy</span>
               </span>
-              <div class="text-muted small mt-1">
-                Harvest:
-                {% if harvest_ready_count %}
-                <span class="text-success fw-bold">{{ harvest_ready_count }} ready</span>
-                {% elif harvest_upcoming_count %}
-                <span class="text-warning fw-bold">{{ harvest_upcoming_count }} upcoming</span>
-                {% else %}
-                All crops growing
-                {% endif %}
-              </div>
             </div>
           </div>
         </div>

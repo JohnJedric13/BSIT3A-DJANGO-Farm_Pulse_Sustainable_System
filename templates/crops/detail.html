@@ -1038,6 +1038,16 @@
     setLoading(false);
   });
 
+  // Auto-open AI Diagnosis modal when arriving via "Inspect Crop & Run AI Scan"
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('open_ai_diag') === '1') {
+    const modalEl = document.getElementById('aiDiagnosisModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
 })();
 </script>
 {% endblock %}
