@@ -1064,3 +1064,157 @@ html {
     font-size: 1.3rem;
   }
 }
+
+/* ==========================================================================
+   Crop Detail: AI Diagnoses & Reports
+   Premium Collapsible Accordions & Expandable Cards
+   ========================================================================== */
+
+.ai-accordion-card {
+  border-radius: 12px !important;
+  border-color: var(--tblr-border-color) !important;
+  background: var(--tblr-bg-surface);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.ai-accordion-card:hover {
+  border-color: color-mix(in srgb, var(--tblr-primary) 38%, var(--tblr-border-color)) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.ai-accordion-card.is-open {
+  border-color: color-mix(in srgb, var(--tblr-primary) 50%, var(--tblr-border-color)) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.ai-accordion-header {
+  background: var(--tblr-bg-surface);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.ai-accordion-header:hover {
+  background: var(--tblr-bg-surface-secondary);
+}
+
+.ai-accordion-card.is-open .ai-accordion-header {
+  background: var(--tblr-bg-surface-secondary);
+  border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.ai-accordion-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.ai-accordion-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(var(--tblr-body-color-rgb), 0.06);
+  color: var(--tblr-muted);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, color 0.2s ease;
+}
+
+.ai-accordion-header:hover .ai-accordion-chevron {
+  background: rgba(var(--tblr-primary-rgb), 0.14);
+  color: var(--tblr-primary);
+}
+
+.ai-accordion-card.is-open .ai-accordion-chevron {
+  transform: rotate(180deg);
+  background: var(--tblr-primary);
+  color: #ffffff !important;
+}
+
+.ai-photo-thumbnail-link img {
+  transition: transform 0.25s ease;
+}
+
+.ai-photo-thumbnail-link:hover img {
+  transform: scale(1.06);
+}
+
+.copy-plan-btn {
+  font-size: 0.72rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.copy-plan-btn:hover {
+  background: rgba(var(--tblr-primary-rgb), 0.12);
+  color: var(--tblr-primary);
+}
+
+.ai-plan-panel {
+  --ai-plan-bg: color-mix(in srgb, #2eca8b 8%, var(--tblr-bg-surface));
+  --ai-plan-border: color-mix(in srgb, #2eca8b 25%, var(--tblr-border-color));
+  background: var(--ai-plan-bg);
+  border-color: var(--ai-plan-border) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.ai-plan-text {
+  color: var(--tblr-body-color);
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* AI Structured Section Cards */
+.ai-section-card {
+  border-radius: 10px !important;
+  transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--tblr-bg-surface);
+}
+
+.ai-section-card:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.ai-visual-card {
+  background: color-mix(in srgb, var(--tblr-primary) 6%, var(--tblr-bg-surface));
+  border-color: color-mix(in srgb, var(--tblr-primary) 24%, var(--tblr-border-color)) !important;
+}
+
+.ai-immediate-card {
+  background: color-mix(in srgb, #f59f00 7%, var(--tblr-bg-surface));
+  border-color: color-mix(in srgb, #f59f00 30%, var(--tblr-border-color)) !important;
+}
+
+.ai-preventative-card {
+  background: color-mix(in srgb, #2eca8b 7%, var(--tblr-bg-surface));
+  border-color: color-mix(in srgb, #2eca8b 30%, var(--tblr-border-color)) !important;
+}
+
+/* Keep the reports column from growing into a wall of text on desktop */
+@media (min-width: 992px) {
+  .ai-reports-list {
+    max-height: 36rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--tblr-border-color) transparent;
+  }
+
+  .ai-reports-list::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .ai-reports-list::-webkit-scrollbar-thumb {
+    background: var(--tblr-border-color);
+    border-radius: 999px;
+  }
+
+  .ai-reports-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}

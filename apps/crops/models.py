@@ -133,10 +133,153 @@ class AIDiagnosis(models.Model):
         related_name='ai_diagnoses',
         db_column='log_id',
     )
+    image = models.ImageField(upload_to='diagnoses/', blank=True, null=True)
     symptom_summary = models.TextField()
     diagnosis_title = models.CharField(max_length=255)
     treatment_plan = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def display_image(self):
+        if self.image:
+            try:
+                return self.image.url
+            except Exception:
+                pass
+        return None
+
+    @property
+    def parsed_plan(self):
+        import re
+        text = (self.treatment_plan or '').strip()
+        if not text:
+            return {'visual': '', 'immediate': [], 'preventative': [], 'raw': ''}
+
+        pattern = re.compile(
+            r'(?:VISUAL\s+DIAGNOSIS[:\s]*)(.*?)(?=(?:IMMEDIATE\s+(?:ORGANIC/FIELD\s+)?ACTIONS[:\s]*)|$)'
+            r'(?:(?:IMMEDIATE\s+(?:ORGANIC/FIELD\s+)?ACTIONS[:\s]*)(.*?)(?=(?:PREVENTATIVE\s+PRACTICES[:\s]*)|$))?'
+            r'(?:(?:PREVENTATIVE\s+PRACTICES[:\s]*)(.*))?',
+            re.IGNORECASE | re.DOTALL
+        )
+        m = pattern.search(text)
+        if not m:
+            return {'visual': text, 'immediate': [], 'preventative': [], 'raw': text}
+
+        visual_raw = (m.group(1) or '').strip()
+        immediate_raw = (m.group(2) or '').strip()
+        preventative_raw = (m.group(3) or '').strip()
+
+        def extract_bullets(sec_text):
+            if not sec_text:
+                return []
+            bullets = []
+            current = []
+            for line in sec_text.splitlines():
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if re.match(r'^[-*•\d\.]+\s+', stripped):
+                    if current:
+                        bullets.append(" ".join(current).strip())
+                        current = []
+                    cleaned = re.sub(r'^[-*•\d\.]+\s+', '', stripped)
+                    current.append(cleaned)
+                else:
+                    if current:
+                        current.append(stripped)
+                    else:
+                        current.append(stripped)
+            if current:
+                bullets.append(" ".join(current).strip())
+            return bullets
+
+        return {
+            'visual': visual_raw,
+            'immediate': extract_bullets(immediate_raw),
+            'preventative': extract_bullets(preventative_raw),
+            'raw': text,
+        }
+
+    @property
+    def formatted_plan_html(self):
+        import html
+        parsed = self.parsed_plan
+        visual = parsed.get('visual', '').strip()
+        immediate = parsed.get('immediate', [])
+        preventative = parsed.get('preventative', [])
+        raw_text = parsed.get('raw', '')
+
+        if not visual and not immediate and not preventative:
+            return f'<div class="ai-plan-text small">{html.escape(raw_text)}</div>'
+
+        parts = []
+
+        if visual:
+            parts.append(
+                f'<div class="ai-section-card ai-visual-card p-3 rounded border mb-3">'
+                f'  <div class="d-flex align-items-center gap-2 mb-2">'
+                f'    <span class="avatar avatar-xs rounded bg-blue-lt text-primary flex-shrink-0">'
+                f'      <i class="fas fa-microscope"></i>'
+                f'    </span>'
+                f'    <span class="fw-bold small text-primary text-uppercase" style="letter-spacing: 0.04em; font-size: 0.74rem;">'
+                f'      Visual Diagnosis &amp; Root Cause'
+                f'    </span>'
+                f'  </div>'
+                f'  <div class="small text-body" style="line-height: 1.6;">'
+                f'    {html.escape(visual)}'
+                f'  </div>'
+                f'</div>'
+            )
+
+        if immediate:
+            items_html = "".join([
+                f'<li class="d-flex align-items-start gap-2 p-2 rounded bg-surface-secondary border-start border-warning border-3">'
+                f'  <i class="fas fa-circle-check text-warning mt-1 flex-shrink-0" style="font-size: 0.85rem;"></i>'
+                f'  <span class="small text-body" style="line-height: 1.55;">{html.escape(act)}</span>'
+                f'</li>'
+                for act in immediate
+            ])
+            parts.append(
+                f'<div class="ai-section-card ai-immediate-card p-3 rounded border mb-3">'
+                f'  <div class="d-flex align-items-center gap-2 mb-2">'
+                f'    <span class="avatar avatar-xs rounded bg-warning-lt text-warning flex-shrink-0">'
+                f'      <i class="fas fa-bolt"></i>'
+                f'    </span>'
+                f'    <span class="fw-bold small text-warning text-uppercase" style="letter-spacing: 0.04em; font-size: 0.74rem;">'
+                f'      Immediate Field Actions (Do This Now)'
+                f'    </span>'
+                f'  </div>'
+                f'  <ul class="list-unstyled mb-0 d-flex flex-column gap-2">'
+                f'    {items_html}'
+                f'  </ul>'
+                f'</div>'
+            )
+
+        if preventative:
+            items_html = "".join([
+                f'<li class="d-flex align-items-start gap-2 p-2 rounded bg-surface-secondary border-start border-success border-3">'
+                f'  <i class="fas fa-shield-halved text-success mt-1 flex-shrink-0" style="font-size: 0.85rem;"></i>'
+                f'  <span class="small text-body" style="line-height: 1.55;">{html.escape(prev)}</span>'
+                f'</li>'
+                for prev in preventative
+            ])
+            parts.append(
+                f'<div class="ai-section-card ai-preventative-card p-3 rounded border mb-0">'
+                f'  <div class="d-flex align-items-center gap-2 mb-2">'
+                f'    <span class="avatar avatar-xs rounded bg-success-lt text-success flex-shrink-0">'
+                f'      <i class="fas fa-seedling"></i>'
+                f'    </span>'
+                f'    <span class="fw-bold small text-success text-uppercase" style="letter-spacing: 0.04em; font-size: 0.74rem;">'
+                f'      Preventative Practices &amp; Long-Term Care'
+                f'    </span>'
+                f'  </div>'
+                f'  <ul class="list-unstyled mb-0 d-flex flex-column gap-2">'
+                f'    {items_html}'
+                f'  </ul>'
+                f'</div>'
+            )
+
+        return "".join(parts)
 
     class Meta:
         db_table = 'ai_diagnoses'
@@ -146,4 +289,3 @@ class AIDiagnosis(models.Model):
 
     def __str__(self):
         return f"{self.diagnosis_title} - {self.crop.name}"
-

@@ -251,6 +251,11 @@ def diagnosis_delete_ajax(request, pk):
     diagnosis = get_object_or_404(AIDiagnosis, pk=pk)
     # verify ownership
     scoped_crop(request.user, diagnosis.crop_id)
+    if diagnosis.image:
+        try:
+            diagnosis.image.delete(save=False)
+        except Exception:
+            pass
     diagnosis.delete()
     return JsonResponse({'status': 'deleted'})
 
@@ -367,8 +372,27 @@ def generate_ai_diagnosis(request, crop_id):
         return JsonResponse({'error': 'Permission denied.'}, status=403)
 
     symptom_notes = request.POST.get('symptom_notes', '').strip()
-    if not symptom_notes:
-        return JsonResponse({'error': 'Please describe the observed symptoms.'}, status=400)
+    diagnosis_image = request.FILES.get('diagnosis_image')
+
+    if not symptom_notes and not diagnosis_image:
+        return JsonResponse({'error': 'Please provide observed symptoms or upload a photo of the crop issue.'}, status=400)
+
+    if not symptom_notes and diagnosis_image:
+        symptom_notes = "Visual photo inspection of crop foliage/condition."
+
+    image_bytes = None
+    image_mime_type = 'image/jpeg'
+    if diagnosis_image:
+        # Validate file size (max 10MB)
+        if diagnosis_image.size > 10 * 1024 * 1024:
+            return JsonResponse({'error': 'Uploaded photo is too large (maximum 10MB).'}, status=400)
+        
+        image_mime_type = diagnosis_image.content_type or 'image/jpeg'
+        if not image_mime_type.startswith('image/'):
+            return JsonResponse({'error': 'Uploaded file must be a valid image (JPG, PNG, WebP).'}, status=400)
+        
+        image_bytes = diagnosis_image.read()
+        diagnosis_image.seek(0)  # Reset pointer so Django can save to storage
 
     api_key = os.environ.get('GEMINI_API_KEY', '').strip()
     if not api_key:
@@ -382,11 +406,12 @@ def generate_ai_diagnosis(request, crop_id):
         f"You are an expert agronomist specialized STRICTLY in {crop.crop_type} (e.g. {crop.name}).\n"
         "CRITICAL RULES:\n"
         f"1. You must ONLY diagnose and give advice for {crop.crop_type}.\n"
-        f"2. If the prompt asks about other crops, refuse politely and remind them you are locked to {crop.crop_type}.\n"
-        "3. Provide your response with EXACTLY these clean section headings:\n\n"
+        "2. If an image is attached, carefully inspect the visual evidence (leaf spots, discoloration, lesions, chew marks, fungal spores, wilting, or pest activity) and synthesize it with the notes.\n"
+        f"3. If the prompt or photo is clearly of another crop or unrelated, refuse politely and remind them you are locked to {crop.crop_type}.\n"
+        "4. Provide your response with EXACTLY these clean section headings:\n\n"
         "DIAGNOSIS TITLE: <A concise 3 to 7 word name of the pest, disease, or condition>\n\n"
         "VISUAL DIAGNOSIS:\n"
-        "<2-3 concise sentences identifying symptoms and primary cause>\n\n"
+        "<2-3 concise sentences identifying symptoms observed and primary cause>\n\n"
         "IMMEDIATE ACTIONS:\n"
         "- <Specific actionable organic/field step 1>\n"
         "- <Specific actionable organic/field step 2>\n\n"
@@ -395,11 +420,12 @@ def generate_ai_diagnosis(request, crop_id):
         "- <Specific preventative practice 2>\n"
     )
 
+    photo_note = " [Photo of affected plant/leaf attached for visual analysis]" if diagnosis_image else ""
     user_prompt = (
         f"Crop: {crop.name} ({crop.crop_type})\n"
         f"Field Location: {crop.location}\n"
-        f"Observed Symptoms: {symptom_notes}\n\n"
-        "Please diagnose and provide actionable recommendations."
+        f"Observed Symptoms: {symptom_notes}{photo_note}\n\n"
+        "Please diagnose the crop problem and provide actionable recommendations."
     )
 
     try:
@@ -408,9 +434,14 @@ def generate_ai_diagnosis(request, crop_id):
 
         client = genai.Client(api_key=api_key)
 
+        gemini_contents = []
+        if diagnosis_image and image_bytes:
+            gemini_contents.append(types.Part.from_bytes(data=image_bytes, mime_type=image_mime_type))
+        gemini_contents.append(user_prompt)
+
         response = client.models.generate_content(
             model='gemini-flash-lite-latest',
-            contents=user_prompt,
+            contents=gemini_contents,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.2,
@@ -423,15 +454,27 @@ def generate_ai_diagnosis(request, crop_id):
             import json
             import urllib.request
             import urllib.error
+            import base64
 
             api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
+            parts = []
+            if diagnosis_image and image_bytes:
+                b64_data = base64.b64encode(image_bytes).decode('utf-8')
+                parts.append({
+                    "inline_data": {
+                        "mime_type": image_mime_type,
+                        "data": b64_data
+                    }
+                })
+            parts.append({"text": user_prompt})
+
             req_payload = {
                 "system_instruction": {
                     "parts": [{"text": system_instruction}]
                 },
                 "contents": [
                     {
-                        "parts": [{"text": user_prompt}]
+                        "parts": parts
                     }
                 ],
                 "generationConfig": {
@@ -450,9 +493,9 @@ def generate_ai_diagnosis(request, crop_id):
                 candidates = res_json.get("candidates", [])
                 ai_text = None
                 if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts:
-                        ai_text = parts[0].get("text", "").strip()
+                    resp_parts = candidates[0].get("content", {}).get("parts", [])
+                    if resp_parts:
+                        ai_text = resp_parts[0].get("text", "").strip()
                 if not ai_text:
                     return JsonResponse({'error': 'No diagnosis text returned by Gemini API.'}, status=500)
         except urllib.error.HTTPError as http_err:
@@ -483,6 +526,7 @@ def generate_ai_diagnosis(request, crop_id):
     diagnosis = AIDiagnosis.objects.create(
         crop=crop,
         log=None,
+        image=diagnosis_image if diagnosis_image else None,
         symptom_summary=symptom_notes,
         diagnosis_title=diagnosis_title,
         treatment_plan=clean_plan,
@@ -493,5 +537,7 @@ def generate_ai_diagnosis(request, crop_id):
         'title': diagnosis.diagnosis_title,
         'symptom_summary': diagnosis.symptom_summary,
         'treatment_plan': diagnosis.treatment_plan,
+        'formatted_plan_html': diagnosis.formatted_plan_html,
+        'image_url': diagnosis.display_image or '',
         'created_at': diagnosis.created_at.strftime('%b %d, %Y %H:%M'),
     })
