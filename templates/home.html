@@ -106,7 +106,7 @@
               {% endfor %}
             </div>
           </div>
-          <div class="forecast-chart-note"><span class="legend-swatch" style="background:#0b8f70;"></span> Estimated crop yield</div>
+          <div class="forecast-chart-note"><span class="legend-swatch" style="background:var(--tblr-primary, #0b8f70);"></span> Estimated crop yield</div>
           {% if unparsed_yield_count %}
           <div class="yield-data-note" role="note">{{ unparsed_yield_count }} yield estimate{{ unparsed_yield_count|pluralize }} could not be charted. Enter a number with a unit, such as 500 kg or 2.5 tons.</div>
           {% endif %}
