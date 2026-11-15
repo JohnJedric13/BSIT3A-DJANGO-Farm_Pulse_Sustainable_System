@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 07, 2026 at 07:25 AM
+-- Generation Time: Nov 15, 2026 at 02:02 PM
 -- Server version: 13.0.2-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,16 +43,18 @@ CREATE TABLE `ai_diagnoses` (
 --
 
 INSERT INTO `ai_diagnoses` (`id`, `crop_id`, `log_id`, `symptom_summary`, `diagnosis_title`, `treatment_plan`, `created_at`, `image`) VALUES
-(1, 5, NULL, 'leaf have holes', 'Flea Beetle Damage (Epitrix spp.)', 'VISUAL DIAGNOSIS:\nSmall \"shot-hole\" perforations on eggplant foliage are the classic hallmark of flea beetle (Epitrix spp.) feeding damage, which thrives in warm greenhouse environments. If the holes are larger and irregular with jagged margins, the damage is likely caused by caterpillar larvae such as loopers or armyworms.\n\nIMMEDIATE ORGANIC/FIELD ACTIONS:\n- Hang yellow sticky cards directly above the eggplant canopy to capture and monitor adult flea beetles.\n- Spray foliage thoroughly, including the undersides of leaves, with cold-pressed neem oil or an OMRI-listed insecticidal soap.\n- If larger caterpillars or dark frass are present, apply Bacillus thuringiensis (Bt) or Spinosad in the early evening.\n\nPREVENTATIVE PRACTICES:\n- Fit greenhouse vents and entry points with fine insect-exclusion netting (40 to 50 mesh) to block migrating pests.\n- Clear all solanaceous weeds, such as wild nightshade, within a 30-foot perimeter around the greenhouse to remove pest reservoirs.\n- Utilize reflective silver mulch beneath eggplant rows to disorient flying insect pests and deter feeding.', '2026-10-27 06:49:07.556942', NULL),
-(2, 5, NULL, 'leaf have holes', 'Flea Beetle Damage (Epitrix spp.)', 'VISUAL DIAGNOSIS:\nThe presence of holes in the eggplant leaves strongly indicates damage from chewing insect pests. Common culprits include flea beetles, which leave tiny \"shot-hole\" punctures, or caterpillars like the tomato fruitworm and hornworms which consume larger sections of foliage. Slugs or snails may also be responsible if you notice smooth-edged holes and slime trails.\n\nIMMEDIATE ORGANIC/FIELD ACTIONS:\nInspect the undersides of the damaged eggplant leaves and stems during early morning or evening to manually identify and remove pests. Apply organic Bacillus thuringiensis (Bt) if caterpillars are detected chewing the foliage. Dust the plants and surrounding soil lightly with diatomaceous earth to deter crawling insects like flea beetles and slugs.\n\nPREVENTATIVE PRACTICES:\nInstall floating row covers over young eggplants to physically block flying pests from reaching the foliage. Clear out all crop residue and weeds at the end of the season to eliminate overwintering sites for pests. Practice crop rotation by not planting eggplants or other solanaceous crops in the same greenhouse location consecutive seasons.', '2026-10-27 06:52:27.746888', NULL),
+(2, 5, NULL, 'leaf have holes', 'FLEA BEETLE DAMAGE (EPITRIX SPP.)', 'VISUAL DIAGNOSIS:\nThe presence of holes in the eggplant leaves strongly indicates damage from chewing insect pests. Common culprits include flea beetles, which leave tiny \"shot-hole\" punctures, or caterpillars like the tomato fruitworm and hornworms which consume larger sections of foliage. Slugs or snails may also be responsible if you notice smooth-edged holes and slime trails.\n\nIMMEDIATE ORGANIC/FIELD ACTIONS:\nInspect the undersides of the damaged eggplant leaves and stems during early morning or evening to manually identify and remove pests. Apply organic Bacillus thuringiensis (Bt) if caterpillars are detected chewing the foliage. Dust the plants and surrounding soil lightly with diatomaceous earth to deter crawling insects like flea beetles and slugs.\n\nPREVENTATIVE PRACTICES:\nInstall floating row covers over young eggplants to physically block flying pests from reaching the foliage. Clear out all crop residue and weeds at the end of the season to eliminate overwintering sites for pests. Practice crop rotation by not planting eggplants or other solanaceous crops in the same greenhouse location consecutive seasons.', '2026-10-27 06:52:27.746888', NULL),
 (3, 6, NULL, 'leaf have holes', 'Cucumber Beetle Leaf Feeding Damage', 'VISUAL DIAGNOSIS:\nClassic watermelon leaves exhibit ragged holes and irregular chewing damage caused primarily by striped or spotted cucumber beetles. These pests feed heavily on tender foliage, which can stunt young plants and vector bacterial wilt.\n\nIMMEDIATE ACTIONS:\n- Hand-pick cucumber beetles in the early morning when they are sluggish, or use hand-held vacuums to reduce adult populations rapidly.\n- Apply a targeted organic spray of neem oil or pyrethrin directly to the foliage and undersides of the leaves in the late evening to avoid harming pollinators.\n\nPREVENTATIVE PRACTICES:\n- Install floating row covers over young classic watermelon plants immediately after planting to create a physical barrier against migrating beetles.\n- Clear out all crop residue and surrounding weeds at the end of the season to eliminate overwintering sites for adult beetles.', '2026-10-27 07:21:25.367105', NULL),
 (4, 4, NULL, 'the crop have a black spots, the leafs are falling unnaturally', 'Anthracnose Fruit Rot and Leaf Spot', 'VISUAL DIAGNOSIS:\nThe black spots and unnatural leaf drop on your Sili Laboyo are characteristic of Anthracnose caused by the fungus *Colletotrichum*, triggered by high humidity and excess moisture in the greenhouse. This pathogen attacks both the developing fruits and foliage, causing tissue necrosis, sunken black lesions, and subsequent premature defoliation.\n\nIMMEDIATE ACTIONS:\n- Prune and safely destroy all severely infected Sili Laboyo leaves and spotted fruits immediately to stop fungal spore dispersal.\n- Spray the plants thoroughly with an organic copper-based fungicide or neem oil solution, focusing on the undersides of the leaves and stems.\n\nPREVENTATIVE PRACTICES:\n- Improve greenhouse ventilation and increase plant spacing to reduce relative humidity around the Sili Laboyo canopy.\n- Switch to drip irrigation or water strictly at the base of the plants in the morning to keep the foliage and fruit dry.', '2026-10-27 07:29:19.171567', NULL),
 (5, 6, NULL, 'soil are dry even though after watering it', 'Soil Hydrophobicity and Compaction in Greenhouse', 'VISUAL DIAGNOSIS:\nClassic watermelon beds are exhibiting severe water repulsion, causing applied irrigation to run off without penetrating the root zone. This hydrophobic condition is typically triggered by extreme organic matter drying or prolonged drought stress in greenhouse soils.\n\nIMMEDIATE ACTIONS:\n- Apply a natural organic wetting agent (such as yucca extract) to break surface tension and allow water to penetrate the dry watermelon root zone.\n- Switch to a slow, pulsing drip irrigation schedule to give the dry classic watermelon soil time to absorb moisture gradually rather than washing past it.\n\nPREVENTATIVE PRACTICES:\n- Incorporate finished compost regularly to improve the water-holding capacity and structure of the greenhouse soil beds.\n- Maintain a consistent mulching layer around the classic watermelon vines to prevent the topsoil from baking dry and forming a hard, water-repellent crust.', '2026-10-27 07:31:29.635218', NULL),
-(6, 5, NULL, 'Notice some have a black spots in it', 'Eggplant Alternaria Leaf Spot and Fruit Rot', 'VISUAL DIAGNOSIS:\nCircular to irregular black spots with concentric rings appear on the leaves and fruit, primarily caused by the fungus *Alternaria solani* thriving in high greenhouse humidity. The lesions expand rapidly under warm, wet conditions, leading to premature defoliation and unmarketable scarred fruit.\n\nIMMEDIATE ACTIONS:\n- Prune and destroy severely infected eggplant leaves and fruit immediately to remove fungal spores from the West Greenhouse environment.\n- Reduce relative humidity below 85% by increasing ventilation and spacing plants to promote rapid drying of foliage.\n\nPREVENTATIVE PRACTICES:\n- Avoid overhead irrigation and utilize drip tape to keep eggplant foliage and fruit completely dry.\n- Apply a preventative copper-based biofungicide or *Bacillus subtilis* spray during periods of high humidity to protect uninfected tissue.', '2026-11-05 00:33:04.698862', NULL),
-(8, 5, NULL, 'I have this small and damage crop', 'Eggplant Blossom End Rot and Sunscald', 'VISUAL DIAGNOSIS:\nThe eggplant fruit exhibits a large, sunken, leathery brown patch at the distal end, typical of calcium deficiency and irregular watering known as blossom end rot. Additionally, surface cracking and tissue collapse indicate potential secondary sunscald damage from intense exposure.\n\nIMMEDIATE ACTIONS:\n- Harvest and discard the affected eggplant fruit immediately to redirect the plant\'s energy toward healthy pod development.\n- Adjust irrigation schedules to ensure consistent soil moisture, avoiding drought stress followed by heavy watering which inhibits calcium uptake.\n\nPREVENTATIVE PRACTICES:\n- Apply a balanced calcium-rich organic fertilizer or foliar calcium spray during early flowering and fruit set stages.\n- Maintain a thick layer of organic mulch around the base of the eggplant plants to stabilize soil temperature and retain moisture levels.', '2026-11-05 01:58:27.860738', 'diagnoses/damaage_eggplant.jfif'),
+(6, 5, NULL, 'Notice some have a black spots in it', 'EGGPLANT ALTERNARIA LEAF SPOT AND FRUIT ROT', 'VISUAL DIAGNOSIS:\nCircular to irregular black spots with concentric rings appear on the leaves and fruit, primarily caused by the fungus *Alternaria solani* thriving in high greenhouse humidity. The lesions expand rapidly under warm, wet conditions, leading to premature defoliation and unmarketable scarred fruit.\n\nIMMEDIATE ACTIONS:\n- Prune and destroy severely infected eggplant leaves and fruit immediately to remove fungal spores from the West Greenhouse environment.\n- Reduce relative humidity below 85% by increasing ventilation and spacing plants to promote rapid drying of foliage.\n\nPREVENTATIVE PRACTICES:\n- Avoid overhead irrigation and utilize drip tape to keep eggplant foliage and fruit completely dry.\n- Apply a preventative copper-based biofungicide or *Bacillus subtilis* spray during periods of high humidity to protect uninfected tissue.', '2026-11-05 00:33:04.698862', NULL),
+(8, 5, NULL, 'I have this small and damage crop', 'EGGPLANT BLOSSOM END ROT AND SUNSCALD', 'VISUAL DIAGNOSIS:\nThe eggplant fruit exhibits a large, sunken, leathery brown patch at the distal end, typical of calcium deficiency and irregular watering known as blossom end rot. Additionally, surface cracking and tissue collapse indicate potential secondary sunscald damage from intense exposure.\n\nIMMEDIATE ACTIONS:\n- Harvest and discard the affected eggplant fruit immediately to redirect the plant\'s energy toward healthy pod development.\n- Adjust irrigation schedules to ensure consistent soil moisture, avoiding drought stress followed by heavy watering which inhibits calcium uptake.\n\nPREVENTATIVE PRACTICES:\n- Apply a balanced calcium-rich organic fertilizer or foliar calcium spray during early flowering and fruit set stages.\n- Maintain a thick layer of organic mulch around the base of the eggplant plants to stabilize soil temperature and retain moisture levels.', '2026-11-05 01:58:27.860738', 'diagnoses/damaage_eggplant.jfif'),
 (9, 4, NULL, 'Visual photo inspection of crop foliage/condition.', 'Fruit Rot and Fungal Decay', 'VISUAL DIAGNOSIS:\nThe Sili Laboyo fruits exhibit severe white, cottony fungal mycelium and tissue breakdown characteristic of post-harvest or late-stage fruit rot (such as Choanephora or Colletotrichum species). This condition is primarily driven by high ambient moisture, lack of ventilation, and fungal spores proliferating on damaged or overripe fruit surfaces.\n\nIMMEDIATE ACTIONS:\n- Sort and immediately discard all Sili Laboyo fruits showing white fungal growth to prevent further spore dispersal.\n- Spread remaining healthy harvested chilis in a single, well-ventilated layer under shade to dry quickly and halt fungal spread.\n\nPREVENTATIVE PRACTICES:\n- Harvest Sili Laboyo fruits promptly at the correct maturity stage and handle them carefully to avoid bruising or skin punctures.\n- Maintain low humidity and proper air circulation in drying and storage areas to discourage fungal germination.', '2026-11-05 05:27:49.847622', 'diagnoses/ruin_chili.jfif'),
 (10, 3, NULL, 'Some parts of the rice are browning', 'Rice Leaf Blast or Brown Spot Disease', 'VISUAL DIAGNOSIS:\nThe observed browning symptoms in your Jasmine Rice paddy indicate a fungal infection, commonly associated with either *Pyricularia oryzae* (Leaf Blast) or *Bipolaris oryzae* (Brown Spot). These pathogens thrive in humid conditions, causing necrotic lesions that reduce the photosynthetic area of the flag leaves and grain-filling capacity.\n\nIMMEDIATE ACTIONS:\n- Drain the paddy water temporarily to reduce humidity at the crop base and inhibit fungal spore germination.\n- Apply a certified organic bio-fungicide containing *Bacillus subtilis* or *Trichoderma harzianum* to suppress further fungal spread across the canopy.\n\nPREVENTATIVE PRACTICES:\n- Maintain balanced nitrogen fertilization, as excessive nitrogen application heavily predisposes Jasmine Rice to blast outbreaks.\n- Practice proper crop residue management and use certified, disease-free Jasmine Rice seeds for future planting seasons.', '2026-11-06 01:50:00.442452', ''),
-(11, 3, NULL, 'Visual Photo of rice crop condition', 'Brown Spot Disease in Jasmine Rice', 'VISUAL DIAGNOSIS:\nThe Jasmine Rice leaves and panicles exhibit characteristic oval-to-circular dark brown lesions with yellowish-gray centers, typical of fungal infection. This condition is primarily caused by the fungus *Bipolaris oryzae*, which thrives under conditions of nutrient deficiency (especially potassium and silicon) and high humidity.\n\nIMMEDIATE ACTIONS:\n- Apply a copper-based organic fungicide or *Bacillus subtilis* bio-fungicide to suppress active spore germination and halt the spread across neighboring Jasmine Rice stands.\n- Adjust water management by temporarily draining the paddy to reduce humidity at the canopy level, followed by balanced re-irrigation.\n\nPREVENTATIVE PRACTICES:\n- Incorporate certified, disease-free Jasmine Rice seeds and treat them with hot water or approved bio-agents before planting.\n- Ensure balanced fertilization by applying adequate potassium and silicon to strengthen cell walls and enhance natural resistance against fungal penetration.', '2026-11-06 02:24:57.232739', 'diagnoses/ricedisease.jpg');
+(11, 3, NULL, 'Visual Photo of rice crop condition', 'Brown Spot Disease in Jasmine Rice', 'VISUAL DIAGNOSIS:\nThe Jasmine Rice leaves and panicles exhibit characteristic oval-to-circular dark brown lesions with yellowish-gray centers, typical of fungal infection. This condition is primarily caused by the fungus *Bipolaris oryzae*, which thrives under conditions of nutrient deficiency (especially potassium and silicon) and high humidity.\n\nIMMEDIATE ACTIONS:\n- Apply a copper-based organic fungicide or *Bacillus subtilis* bio-fungicide to suppress active spore germination and halt the spread across neighboring Jasmine Rice stands.\n- Adjust water management by temporarily draining the paddy to reduce humidity at the canopy level, followed by balanced re-irrigation.\n\nPREVENTATIVE PRACTICES:\n- Incorporate certified, disease-free Jasmine Rice seeds and treat them with hot water or approved bio-agents before planting.\n- Ensure balanced fertilization by applying adequate potassium and silicon to strengthen cell walls and enhance natural resistance against fungal penetration.', '2026-11-06 02:24:57.232739', 'diagnoses/ricedisease.jpg'),
+(12, 1, NULL, 'Yellow concentric spots on lower leaves', 'Early Blight (Alternaria solani)', 'VISUAL DIAGNOSIS: Fungal lesions identified on bottom foliage.\nIMMEDIATE ACTIONS: Apply copper biofungicide spray.\nPREVENTATIVE: Avoid overhead splashing.', '2026-11-09 20:45:14.181102', 'diagnoses/tomato_blight.jpg'),
+(13, 3, 17, 'Leaf tips exhibiting necrosis and yellow margins', 'Potassium Deficiency in Jasmine Rice', 'Apply potassium chloride (muriate of potash) foliar spray and rebalance fertilizer ratio.', '2026-11-12 13:06:25.552663', 'diagnoses/rice_deficiency.jpg'),
+(14, 3, NULL, 'Some rice started to wither', 'Parts are brown in Jasmine Rice', 'Try removing some of them and apply new fertilizer and give them some water in a specific schedule.', '2026-11-12 13:29:15.723975', 'diagnoses/withered_rice.jpg');
 
 -- --------------------------------------------------------
 
@@ -217,8 +219,9 @@ INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `userna
 (2, 'pbkdf2_sha256$1200000$6tJ7297yjDHjAufSku1f6Q$/+XGBQy79azDzpUZ5QvzAQ7L3T608gS5zuB2/ATXeEc=', '2026-08-07 06:43:08.595063', 2, 'laravel', 'Laravel', 'Azuelo', 'glennazuelo12@gmail.com', 1, 1, '2026-06-25 10:30:12.000000'),
 (14, 'pbkdf2_sha256$720000$sYZ8PnawQJBJnGE3BKBilE$iP5ai9K4Yy+AgQX8VsrNXBPHCw+K/bLoRx6XwEdWV90=', '2026-11-05 06:12:14.678963', 0, 'wew', 'jstaff', 'ss', 'jrey2322@gmail.com', 0, 1, '2026-10-13 14:02:49.839050'),
 (15, 'pbkdf2_sha256$720000$7aoBjQaGMbdeP2yBJjDWWZ$p4aUeG2RzMdZn53MH5r/8HZdp+fSEGrmFrEQ/0zuIx4=', '2026-10-23 09:56:39.396082', 0, 'jrey2322', 'staff', 'staff', 'jrey@gmail.com', 0, 1, '2026-10-23 09:56:38.667217'),
-(16, 'pbkdf2_sha256$720000$9syEmcwFwmbknnhV9LRf5G$+NEURJy0H3OwWoioNYogo0ZHJngfO+6iLxkn/77dTDk=', '2026-11-05 04:33:43.751281', 0, 'wew2', 'wew', 'wew', 'wew@gmail.com', 0, 1, '2026-11-05 04:33:42.935972'),
-(17, 'pbkdf2_sha256$720000$Bi6Q0WXBOwEjmPJWkYJNUw$d4cT7T3HiIodtrDYpd8z6oN4WJKgeOGVulMsEKyxpp8=', NULL, 1, 'jjga', 'John Jedric', 'Alipat', 'johnjedricalipat13@gmail.com', 1, 1, '2026-11-06 01:50:47.693677');
+(16, 'pbkdf2_sha256$720000$9syEmcwFwmbknnhV9LRf5G$+NEURJy0H3OwWoioNYogo0ZHJngfO+6iLxkn/77dTDk=', '2026-11-05 04:33:43.751281', 0, 'wew2', 'wew', 'wew', 'wew@gmail.com', 0, 0, '2026-11-05 04:33:42.935972'),
+(17, 'pbkdf2_sha256$720000$Bi6Q0WXBOwEjmPJWkYJNUw$d4cT7T3HiIodtrDYpd8z6oN4WJKgeOGVulMsEKyxpp8=', '2026-11-14 18:53:12.034861', 1, 'jjga', 'John Jedric', 'Alipat', 'johnjedricalipat13@gmail.com', 1, 1, '2026-11-06 01:50:47.693677'),
+(18, 'pbkdf2_sha256$720000$hcb6npQks3NIcz5O6AnOhy$7EMJVrIae7MZi8EqvFv7APEzUamNVsyl4oUxdq9rzPU=', NULL, 0, 'agronomist_Don', 'Don', 'Walter', 'don.walter@farmpulse.ph', 1, 1, '2026-11-09 21:07:38.353459');
 
 -- --------------------------------------------------------
 
@@ -270,12 +273,15 @@ CREATE TABLE `crops` (
 --
 
 INSERT INTO `crops` (`id`, `user_id`, `name`, `crop_type`, `location`, `status`, `last_observation`, `created_at`, `estimated_yield`, `expected_harvest_date`, `planting_date`, `image`) VALUES
-(1, 1, 'Tomato Field A', 'Roma Tomato', 'North Greenhouse', 'Healthy', 'Nothing Changes', '2026-10-13 05:52:51.000000', '60 kg', '2026-12-27', '2026-10-13', 'crops/tomato.jfif'),
-(3, 1, 'Rice Paddy B', 'Jasmine Rice', 'South Terraces', 'Minor Warning', 'Some rice growing fine due to cleaning and fertilizing', '2026-10-13 05:52:51.000000', '150 kg', '2027-03-05', '2026-11-05', 'crops/Rice_Paddy_K05VRah.jpg'),
-(4, 14, 'Chili B', 'Sili Laboyo', 'West Greenhouse', 'Minor Warning', 'Daily Activity Log', '2026-10-13 14:20:55.456865', '50 kg', '2027-01-01', '2026-10-13', 'crops/sili.jfif'),
+(1, 1, 'Tomato Field A', 'Roma Tomato', 'North Greenhouse', 'Healthy', 'Nothing Changes | Inspected on Nov 7: Foliage recovery confirmed.', '2026-10-13 05:52:51.000000', '60 kg', '2026-12-27', '2026-10-13', 'crops/tomato.jfif'),
+(3, 1, 'Rice Paddy B', 'Jasmine Rice', 'South Terraces', 'Healthy', 'Some rice growing fine due to cleaning and fertilizing', '2026-10-13 05:52:51.000000', '150 kg', '2027-03-15', '2026-11-05', 'crops/Rice_Paddy_K05VRah.jpg'),
+(4, 14, 'Chili B', 'Sili Laboyo', 'West Greenhouse', 'Minor Warning', 'Some parts are becoming yellow.', '2026-10-13 14:20:55.456865', '50 kg', '2027-01-01', '2026-10-13', 'crops/sili.jfif'),
 (5, 14, 'Eggplant', 'Eggplant', 'West Greenhouse', 'Healthy', 'New Fertilizers', '2026-10-22 02:02:58.060766', '80 kg', '2027-01-04', '2026-10-21', 'crops/eggplant.jfif'),
 (6, 14, 'WaterMelon', 'Classic WaterMelon', 'South Green House', 'Healthy', 'Daily Activity Log', '2026-10-27 04:52:10.894471', '80 kg', '2027-01-20', '2026-10-26', 'crops/watermelon.jfif'),
-(7, 14, 'Potato', 'Classic Potato', 'West GreenHouse', 'Healthy', 'Daily Activity Log', '2026-11-05 04:45:30.132293', '100 kg', '2027-02-12', '2026-11-04', 'crops/potato.jfif');
+(7, 14, 'Potato', 'Classic Potato', 'West GreenHouse', 'Healthy', 'Daily Activity Log', '2026-11-05 04:45:30.132293', '120 kg', '2027-02-12', '2026-11-04', 'crops/potato.jfif'),
+(8, 1, 'Corn Field Alpha', 'Sweet Corn', 'East Acre Plot 1', 'Healthy', 'Germination complete with uniform emerald foliage.', '2026-11-09 20:12:47.929336', '220 kg', '2027-01-28', '2026-11-09', 'crops/corn_alpha.jpg'),
+(9, 17, 'Bell Pepper Plot C', 'Sweet Bell Pepper', 'North Greenhouse Bay 3', 'Healthy', 'Seedlings transplanted successfully.', '2026-11-12 13:00:31.435626', '95 kg', '2027-01-15', '2026-11-01', 'crops/bell_pepper.jpg'),
+(10, 14, 'Cherry Tomato Plot D', 'Cherry Tomato', 'EAST GREENHOUSE BAY 2', 'Healthy', 'Optimal flowering clusters observed.', '2026-11-12 13:11:32.106383', '120 kg', '2027-01-12', '2026-11-12', 'crops/cherry_tomato.jpg');
 
 -- --------------------------------------------------------
 
@@ -452,6 +458,7 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('je31lxu8tuxmcoj16kmi8zcpwqv0tk5x', '.eJxVjMEOgyAQRP9lz8aIK0Q89t5vIAsLlYraCJ6a_ns18eJpJvNe5guBYvJsqBQ_f0qGoakgrW4yJc4ehmVPqQJDexnNnv1mIsMALdw2S27yywn4Tctrrd26lC3a-lTqi-b6ubJPj8u9HYyUx_MWrUKlhVAYgiBL4eiatZSdC6S465A8tqiORCt1r5GFZFa9Qh8agt8fnUdEoQ:1wVlX6:Aje4sw2JLOfc6plTFbos1gOAA8yUZsidF9y2f_WCNWQ', '2026-06-20 07:33:28.534590'),
 ('jmuceexhjkzq6onqzha24eq20efp12ij', '.eJxVjEEOgyAQAP-yZ2NAUJBj730DWV2oVIRG8NT0742JF68zk_mCxxAdWazVbZ9awLAGYp5XW8PmwKQjxgYsHnWxR3G7DQQGONzYhPPq0inojemV2zmnuoepPZP2sqV9ZnLxcbW3wYJlAQOayNEomBa9kgoVZ3rUOA3eMdZz7FCiQqYkE-iF1F70AyeOWncjktcCfn-cq0Rt:1x2pqk:MxSCCusvIKvkAW-TUjTKgwaVxcuXi_Rc9zMvE5hvAac', '2026-09-19 12:50:26.414216'),
 ('ltdey2r6fbc0nhd5t6ocap6smisii4fr', '.eJxVjMEOgyAQRP9lz8aIK0Q89t5vIAsLlYraCJ6a_ns18eJpJvNe5guBYvJsqBQ_f0qGoakgrW4yJc4ehmVPqQJDexnNnv1mIsMALdw2S27yywn4Tctrrd26lC3a-lTqi-b6ubJPj8u9HYyUx_MWrUKlhVAYgiBL4eiatZSdC6S465A8tqiORCt1r5GFZFa9Qh8agt8fnUdEoQ:1whOwC:rfWJrCYJFlKFd1_PKWva5nbz5vf8mpCJtEsL6MMRVTE', '2026-07-22 09:51:28.839793'),
+('m4torgd6q5za8wr7tlv5jgeu7pxghzy2', '.eJxVjDkOgzAQAP-yNUK-wECZPm-wzO46OBgcgami_D1CoqGdGc0Xgo-JyflSePmUHQZRQco4uxIXhmE9UqrA-aNM7th5c5FgAGnhBkePM6-nobdfX7nGvJYtjvWZ1Jfd62cmTo-rvQ0mv0_nl3Xf9B2y78cOG1KEsmlbyzoYg0ytElpKY3uhWJCymrShoEI7EppOIPz-5ChFNw:1xQZdO:6hZyIZw03vdP4Y0PAx5jey6c4E_JVHNZ9oDk4j82T-w', '2026-11-24 00:22:46.734034'),
 ('mbzknu4kpkawr3s0vvf634ospzzwsrvf', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9lOB:I9WYm6abDUdwuXeMhNvtqjcodpbqvpCf5X4VE00gmXk', '2026-10-08 15:29:35.229487'),
 ('o0er7qcxpvsznfpyrbi7nkc43ktjt45y', '.eJxVjMEOgyAQRP9lz4aIq0Q89t5vIAsLlYrYKJ6a_ns18eJpJvNm5guBYvJsqBQ_f8oGQ11BWtxkSpw9DHlPqQJDexnNvvnVRIYBJNwyS27y-QT8pvxahFtyWaMVZ0VcdBPPhX16XN3bwUjbeKwbtAqVllJhCJIshcNr1l3XukCK2xbJY4PqULSd7jWy7JhVr9CHmuD3B5yuRKA:1wyHkC:WRpgfOnjPO25648LQ6TNsHZJ4Dm1ZXAkQnY5QlgMtlI', '2026-09-06 23:36:52.041422'),
 ('po9jjrnlcd6fk4yl9qogqb129qjgqc9n', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1xOlfe:yn9JILxjy9nO0h8epx63hiCAue-Ow1hZJAZdBIXEquU', '2026-11-19 00:49:38.440205'),
@@ -461,7 +468,6 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('snnogcecnzs7hf9nrvwnupibxbfnxax9', 'eyJmYWlsZWRfYXR0ZW1wdHMiOjUsImxvY2tfdGltZSI6IjIwMjYtMTEtMDVUMDU6NTQ6MzIuNjc3NzM4KzAwOjAwIn0:1xOqPk:ZXO2gREctUPyQvbOHSraYa8Ttn0XhufEdEQZWe4gp8I', '2026-11-19 05:53:32.727894'),
 ('swjje3v5mk3bbc0r4cr43oai4zyziuid', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9krV:01Og5u64VzLqlYcDp21s5RRNDqfQZGXPaCbN3Nyf7jM', '2026-10-08 14:55:49.449985'),
 ('ttt8vv4blhjd3sigrt8nu0k6dp87imxc', '.eJxVjEsOgjAUAO_y1qbpK7QFlu49A3mf1qIGEgor490NCQvdzkzmDSPtWxn3mtZxUhgA4fLLmOSZ5kPog-b7YmSZt3VicyTmtNXcFk2v69n-DQrVAgNERueoiZ0Qaeu0s4Ex9I1YyphsVuEYMQf1PrP3JA3bjG0Qzdx3IcDnC_HkOIQ:1x9lOP:KuicCgkiYKc3-iWZ9IP4Oe9IhKnGSlrUaKod_tSYt48', '2026-10-08 15:29:49.345566'),
-('v648f3sexpan47sto1eyjo6ln0i87isu', '.eJxVjEEOgyAQAP-yZ0NABZRj730DWVioVMRG8dT0742JF68zk_lCxJQDWaw1LJ-6g-EN5NXPtqYlgClHzg1YPOpkjz1sNhEYEHBjDv0cyinojeW1Mr-WuiXHzoRddmfPlUJ-XO1tMOE-gQHtRNtipwePSH1LA1dOqLHzHKMIPJJ3WouoSMropETfOR5FrzxFNw5Kwe8PwOZFsA:1xP8sm:UMjl_bYD8RsYgxVC_WswsBYuR8pxa4tmy_KnwHzT9No', '2026-11-20 01:36:44.180882'),
 ('z87ydqtr3q6d5eplfza2bzcl33nhfjdw', '.eJxVjMEKwyAQRP_Fc5Ga1SX22Hu_QVZXa9qiEJNT6b83Qg7JaYZ5j_kKR-uS3dri7CYWNzGIy3HzFN6xdMAvKs8qQy3LPHnZFbnTJh-V4-e-u6eDTC33W_AIaJVCSEmRp7R1y9YYHRIhaw0UYQDcEryxowVWhhlHhJiuJH5_zkU3dQ:1wsEHC:jgqzFKzskPhOyH8t9tDWOMpQPpL28E7zJvCfUA3YzNo', '2026-08-21 06:41:54.400657'),
 ('zqqkooen0mi5f1eqdjsrywec5eia40wh', '.eJxVjEEOgyAQAP-yZ2MQAcVj730DWdmlWlEawVPTvzcmXrzOTOYLAefI5LAUXj8lwyAqiMkvrswrw7AdMVbg8CiTOzLvbiYYoFFwgyP6hbfT0Bu3V6p92so-j_WZ1JfN9TMRx8fV3gYT5gkG0FYp4bVh3zaEnZGBO8uKhAnkmaXpQ99aaawWXqOWQki2QhN50bFVHfz-3jNE5g:1xOqhq:91DHkXx6zF0zIEl-YvkVhb0huuLOk6A8_a6LbdFDbxM', '2026-11-19 06:12:14.912820');
 
@@ -487,10 +493,10 @@ CREATE TABLE `farm_logs` (
 
 INSERT INTO `farm_logs` (`id`, `crop_id`, `activity_type`, `observed_condition`, `notes`, `log_date`, `created_at`) VALUES
 (1, 1, 'Field Inspection', 'Unhealthy / Sick', 'Noticed yellow concentric spots with brown centers on bottom leaves. Possible fungal infection.', '2026-10-13', '2026-10-13 05:52:52.000000'),
-(3, 4, 'Watering', 'Pest Infestation Detected', 'kkkk', '2026-10-13', '2026-10-13 14:33:15.095808'),
+(3, 4, 'Watering', 'Pest Infestation Detected', 'Routine irrigation completed; no abnormalities detected.', '2026-10-13', '2026-10-13 14:33:15.095808'),
 (4, 4, 'Watering', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:50:13.268337'),
 (5, 5, 'Inspection', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:50:38.796816'),
-(6, 7, 'Watering', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:50:54.280398'),
+(6, 7, 'Watering', 'Healthy / Optimal', 'Some part of the crops are fine it stays healthy.', '2026-11-04', '2026-11-05 04:50:54.280398'),
 (7, 3, 'Pest Control', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:51:07.733550'),
 (8, 1, 'Pruning', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:51:20.303737'),
 (9, 6, 'Watering', 'Healthy / Optimal', 'Nothing Changes', '2026-11-04', '2026-11-05 04:51:32.173607'),
@@ -502,7 +508,12 @@ INSERT INTO `farm_logs` (`id`, `crop_id`, `activity_type`, `observed_condition`,
 (15, 6, 'Watering', 'Healthy / Optimal', 'Daily Activity Log', '2026-11-04', '2026-11-05 05:07:25.050786'),
 (16, 4, 'Watering', 'Healthy / Optimal', 'Daily Activity Log', '2026-11-05', '2026-11-05 05:11:38.884225'),
 (17, 3, 'Fertilizing', 'Normal / Good', 'Some rice growing fine due to cleaning and fertilizing', '2026-11-06', '2026-11-06 01:58:30.168466'),
-(18, 5, 'Fertilizing', 'Healthy / Optimal', 'New Fertilizers', '2026-11-06', '2026-11-06 02:17:58.528545');
+(18, 5, 'Fertilizing', 'Healthy / Optimal', 'New Fertilizers', '2026-11-06', '2026-11-06 02:17:58.528545'),
+(19, 1, 'Watering', 'Healthy / Optimal', 'Automated drip tape ran for 45 minutes. Soil moisture at root zone optimal.', '2026-11-09', '2026-11-09 20:31:17.801125'),
+(20, 4, 'Pruning', 'Minor Symptoms Observed', 'Some parts are becoming yellow.', '2026-11-12', '2026-11-12 02:19:30.112195'),
+(21, 4, 'Weeding', 'Healthy / Optimal', 'Manual weeding performed between rows.', '2026-11-12', '2026-11-12 12:54:28.946714'),
+(22, 5, 'Pruning', 'Healthy / Optimal', 'Removed lower yellow suckers to boost airflow.', '2026-11-12', '2026-11-12 12:54:28.946714'),
+(23, 6, 'Inspection', 'Healthy / Optimal', 'Canopy inspected for aphid clusters; none found.', '2026-11-12', '2026-11-12 12:54:28.946714');
 
 -- --------------------------------------------------------
 
@@ -526,7 +537,8 @@ CREATE TABLE `tblinfo` (
 --
 
 INSERT INTO `tblinfo` (`id`, `name`, `age`, `address`, `email`, `created_at`, `updated_at`, `user_id`) VALUES
-(1, 'Glenn Azuelo1', 30, 'cauayan', 'glennazuelo1@gmail.com', '2026-09-28 14:16:01.072631', '2026-09-28 14:16:13.176731', 1);
+(1, 'Glenn Azuelo1', 30, 'cauayan', 'glennazuelo1@gmail.com', '2026-09-28 14:16:01.072631', '2026-09-28 14:16:13.176731', 1),
+(2, 'Harvey A. Jain', 22, 'Brgy. 1, Kabankalan City', 'harvey.jain@farmpulse.ph', '2026-11-09 20:57:28.165891', '2026-11-09 20:57:28.165891', 17);
 
 --
 -- Indexes for dumped tables
@@ -642,7 +654,7 @@ ALTER TABLE `tblinfo`
 -- AUTO_INCREMENT for table `ai_diagnoses`
 --
 ALTER TABLE `ai_diagnoses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `auth_group`
@@ -666,7 +678,7 @@ ALTER TABLE `auth_permission`
 -- AUTO_INCREMENT for table `auth_user`
 --
 ALTER TABLE `auth_user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `auth_user_groups`
@@ -684,7 +696,7 @@ ALTER TABLE `auth_user_user_permissions`
 -- AUTO_INCREMENT for table `crops`
 --
 ALTER TABLE `crops`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `django_admin_log`
@@ -708,13 +720,13 @@ ALTER TABLE `django_migrations`
 -- AUTO_INCREMENT for table `farm_logs`
 --
 ALTER TABLE `farm_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `tblinfo`
 --
 ALTER TABLE `tblinfo`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
