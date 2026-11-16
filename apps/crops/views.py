@@ -30,7 +30,7 @@ CROP_HARVEST_PRESETS = [
 def scoped_crops(user):
     if user.is_superuser:
         return Crop.objects.all()
-    return Crop.objects.filter()
+    return Crop.objects.filter(user=user)
 
 
 def scoped_crop(user, pk):
